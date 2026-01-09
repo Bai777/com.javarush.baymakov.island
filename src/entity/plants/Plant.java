@@ -6,7 +6,7 @@ import entity.Eatable;
 public class Plant implements Eatable {
     private double weight;
 
-    public Plant(double weight) {
+    public Plant() {
         this.weight = Settings.PLANT_WEIGHT;
     }
 
