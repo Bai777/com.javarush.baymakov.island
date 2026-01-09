@@ -1,4 +1,34 @@
 package entity.animals.predators;
 
-public class Wolf {
+import config.Settings;
+import entity.Eatable;
+import entity.Predator;
+
+public class Wolf extends Predator {
+    public Wolf() {
+        super(Settings.AnimalParams.WOLF_WEIGHT,
+                Settings.AnimalParams.WOLF_MAX_COUNT_IN_CELL,
+                Settings.AnimalParams.WOLF_SPEED,
+                Settings.AnimalParams.WOLF_FOOD_NEEDED);
+    }
+
+    @Override
+    public void eat(Eatable food) {
+        // TODO:
+    }
+
+    @Override
+    public void move() {
+        // TODO:
+    }
+
+    @Override
+    public void multiply() {
+        // TODO:
+    }
+
+    @Override
+    public void die() {
+        // TODO:
+    }
 }
