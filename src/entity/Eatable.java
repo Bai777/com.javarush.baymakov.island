@@ -1,4 +1,4 @@
 package entity;
 
-public class Eatable {
+public interface Eatable {
 }
