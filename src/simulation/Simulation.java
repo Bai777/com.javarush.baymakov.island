@@ -23,27 +23,26 @@ public class Simulation {
 
         Location location = island.getLocation(centerX, centerY);
 
-        System.out.println("\n" + "*".repeat(50));
-        System.out.println("ИНИЦИАЛИЗАЦИЯ ТЕСТОВОЙ ЛОКАЦИИ");
-        System.out.println("*".repeat(50));
-        System.out.println("Координаты: [" + centerX + ", " + centerY + "]");
-        System.out.println("Параметры:");
-        System.out.println("  - Макс. растений в клетке: " + Settings.MAX_PLANTS_IN_CELL);
-        System.out.println();
-
         System.out.println("ДОБАВЛЕНИЕ ХИЩНИКОВ:");
         addAnimalWithCheck(location, Wolf.class, Settings.AnimalParams.WOLF_MAX_COUNT_IN_CELL, "Волк", 2);
-        addAnimalWithCheck(location, Bear.class, Settings.AnimalParams.BEAR_MAX_COUNT_IN_CELL, "Медведь", 1);
-        addAnimalWithCheck(location, Fox.class, Settings.AnimalParams.FOX_MAX_COUNT_IN_CELL, "Лиса", 3);
         addAnimalWithCheck(location, Boa.class, Settings.AnimalParams.BOA_MAX_COUNT_IN_CELL, "Удав", 2);
+        addAnimalWithCheck(location, Fox.class, Settings.AnimalParams.FOX_MAX_COUNT_IN_CELL, "Лиса", 3);
+        addAnimalWithCheck(location, Bear.class, Settings.AnimalParams.BEAR_MAX_COUNT_IN_CELL, "Медведь", 1);
         addAnimalWithCheck(location, Eagle.class, Settings.AnimalParams.EAGLE_MAX_COUNT_IN_CELL, "Орел", 2);
 
         System.out.println("\nДОБАВЛЕНИЕ ТРАВОЯДНЫХ:");
         addAnimalWithCheck(location, Horse.class, Settings.AnimalParams.HORSE_MAX_COUNT_IN_CELL, "Лошадь", 2);
-        addAnimalWithCheck(location, Rabbit.class, Settings.AnimalParams.RABBIT_MAX_COUNT_IN_CELL, "Кролик", 5);
         addAnimalWithCheck(location, Deer.class, Settings.AnimalParams.DEER_MAX_COUNT_IN_CELL, "Олень", 2);
+        addAnimalWithCheck(location, Rabbit.class, Settings.AnimalParams.RABBIT_MAX_COUNT_IN_CELL, "Кролик", 5);
+        addAnimalWithCheck(location, Mouse.class, Settings.AnimalParams.MOUSE_MAX_COUNT_IN_CELL, "Мышь", 4);
         addAnimalWithCheck(location, Goat.class, Settings.AnimalParams.GOAT_MAX_COUNT_IN_CELL, "Коза", 3);
         addAnimalWithCheck(location, Sheep.class, Settings.AnimalParams.SHEEP_MAX_COUNT_IN_CELL, "Овца", 3);
+        addAnimalWithCheck(location, Boar.class, Settings.AnimalParams.BOA_MAX_COUNT_IN_CELL, "Кабан", 5);
+        addAnimalWithCheck(location, Buffalo.class, Settings.AnimalParams.BUFFALO_MAX_COUNT_IN_CELL, "Буйвол", 7);
+        addAnimalWithCheck(location, Duck.class, Settings.AnimalParams.DUCK_MAX_COUNT_IN_CELL, "Утка", 3);
+        addAnimalWithCheck(location, Caterpillar.class, Settings.AnimalParams.CATERPILLAR_MAX_COUNT_IN_CELL, "Гусеница", 8);
+
+
 
         location.setPlantsCount(75);
         System.out.println("\nДОБАВЛЕНИЕ РАСТЕНИЙ:");
