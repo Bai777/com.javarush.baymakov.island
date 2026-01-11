@@ -11,24 +11,4 @@ public class Bear extends Predator {
                 Settings.AnimalParams.BEAR_SPEED,
                 Settings.AnimalParams.BEAR_FOOD_NEEDED);
     }
-
-    @Override
-    public void eat(Eatable food) {
-        // TODO:
-    }
-
-    @Override
-    public void move() {
-        // TODO:
-    }
-
-    @Override
-    public void multiply() {
-        // TODO:
-    }
-
-    @Override
-    public void die() {
-        // TODO:
-    }
 }

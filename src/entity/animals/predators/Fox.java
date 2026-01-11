@@ -11,24 +11,4 @@ public class Fox extends Predator {
                 Settings.AnimalParams.FOX_SPEED,
                 Settings.AnimalParams.FOX_FOOD_NEEDED);
     }
-
-    @Override
-    public void eat(Eatable food) {
-        // TODO:
-    }
-
-    @Override
-    public void move() {
-        // TODO:
-    }
-
-    @Override
-    public void multiply() {
-        // TODO:
-    }
-
-    @Override
-    public void die() {
-        // TODO:
-    }
 }

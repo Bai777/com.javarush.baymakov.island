@@ -11,24 +11,4 @@ public class Eagle extends Predator {
                 Settings.AnimalParams.EAGLE_SPEED,
                 Settings.AnimalParams.EAGLE_FOOD_NEEDED);
     }
-
-    @Override
-    public void eat(Eatable food) {
-        // TODO:
-    }
-
-    @Override
-    public void move() {
-        // TODO:
-    }
-
-    @Override
-    public void multiply() {
-        // TODO:
-    }
-
-    @Override
-    public void die() {
-        // TODO:
-    }
 }
