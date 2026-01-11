@@ -1,7 +1,6 @@
 package entity.animals.predators;
 
 import config.Settings;
-import entity.Eatable;
 import entity.Predator;
 
 public class Eagle extends Predator {
