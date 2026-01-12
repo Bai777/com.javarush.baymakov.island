@@ -28,30 +28,31 @@ public class Location {
         return false;
     }
 
-    public boolean removeAnimal(Class<? extends Animal> animalClass) {
-        int count = animals.getOrDefault(animalClass, 0);
-        if (count > 0) {
-            animals.put(animalClass, count - 1);
-            for (Iterator<Animal> iterator = animalObjects.iterator(); iterator.hasNext(); ) {
-                Animal animal = iterator.next();
-                if (animal.getClass().equals(animalClass)) {
-                    iterator.remove();
-                    break;
-                }
-            }
-            return true;
-        }
-        return false;
-    }
-
     public boolean removeAnimal(Animal animal) {
         Class<? extends Animal> animalClass = animal.getClass();
         int count = animals.getOrDefault(animalClass, 0);
+
         if (count > 0 && animalObjects.remove(animal)) {
             animals.put(animalClass, count - 1);
             return true;
         }
         return false;
+    }
+
+    public Animal removeAnimal(Class<? extends Animal> animalClass) {
+        int count = animals.getOrDefault(animalClass, 0);
+        if (count > 0) {
+            // Ищем первый объект этого класса
+            for (Iterator<Animal> iterator = animalObjects.iterator(); iterator.hasNext();) {
+                Animal animal = iterator.next();
+                if (animal.getClass().equals(animalClass)) {
+                    iterator.remove();
+                    animals.put(animalClass, count - 1);
+                    return animal; // Возвращаем удаленное животное
+                }
+            }
+        }
+        return null;
     }
 
     public List<Animal> getAnimalObjects() {

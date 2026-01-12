@@ -71,7 +71,7 @@ public abstract class Animal implements Eatable {
                 int currentCount = currentLocation.getAnimalCount(this.getClass());
                 if (currentLocation != targetLocation &&
                         targetLocation.getAnimalCount(this.getClass()) < maxCountInCell) {
-                    currentLocation.removeAnimal(this.getClass());
+                    currentLocation.removeAnimal(this);
                     targetLocation.addAnimal(this);
                     decreaseSatiety(0.2);
                 }

@@ -3,8 +3,7 @@ package logic;
 import config.Settings;
 import entity.Animal;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class Island {
     private Location[][] locations;
@@ -33,7 +32,8 @@ public class Island {
         for (int x = 0; x < Settings.ISLAND_WIDTH; x++) {
             for (int y = 0; y < Settings.ISLAND_HEIGHT; y++) {
                 Location location = locations[x][y];
-                location.addPlants(10);
+                int growth = new Random().nextInt(5) + 1;
+                location.addPlants(growth);
             }
         }
     }
@@ -41,32 +41,43 @@ public class Island {
     public void printStatistics() {
         Map<Class<? extends Animal>, Integer> animalCounts = new HashMap<>();
         int totalPlants = 0;
+        int totalAnimals = 0;
+        int deadAnimals = 0;
 
         for (int x = 0; x < Settings.ISLAND_WIDTH; x++) {
             for (int y = 0; y < Settings.ISLAND_HEIGHT; y++) {
                 Location location = locations[x][y];
                 totalPlants += location.getPlantsCount();
 
-                Map<Class<? extends Animal>, Integer> locationAnimals = location.getAnimals();
-                for (Map.Entry<Class<? extends Animal>, Integer> entry : locationAnimals.entrySet()) {
-                    Class<? extends Animal> animalClass = entry.getKey();
-                    int count = entry.getValue();
-                    animalCounts.put(animalClass, animalCounts.getOrDefault(animalClass, 0) + count);
+                List<Animal> animals = location.getAnimalObjects();
+                totalAnimals += animals.size();
+
+                for (Animal animal : animals) {
+                    if (!animal.isAlive()) {
+                        deadAnimals++;
+                    }
+
+                    Class<? extends Animal> animalClass = animal.getClass();
+                    animalCounts.put(animalClass, animalCounts.getOrDefault(animalClass, 0) + 1);
                 }
             }
         }
 
-        System.out.println("\n" + "=".repeat(40));
-        System.out.println("СТАТИСТИКА ОСТРОВА");
-        System.out.println("=".repeat(40));
+        System.out.println("\n" + "=".repeat(60));
+        System.out.println("СТАТИСТИКА ОСТРОВА - ТАКТ: " + System.currentTimeMillis());
+        System.out.println("=".repeat(60));
         System.out.println("Размер: " + Settings.ISLAND_WIDTH + "x" + Settings.ISLAND_HEIGHT);
-        System.out.println("Растений всего: " + totalPlants);
-        System.out.println("Макс. в клетке: " + Settings.MAX_PLANTS_IN_CELL);
-        System.out.println("-".repeat(40));
+        System.out.println("Растения всего: " + totalPlants);
+        System.out.println("Животные всего: " + totalAnimals + " (мертвых: " + deadAnimals + ")");
+        System.out.println("-".repeat(60));
 
         if (!animalCounts.isEmpty()) {
-            System.out.println("ЖИВОТНЫЕ:");
-            for (Map.Entry<Class<? extends Animal>, Integer> entry : animalCounts.entrySet()) {
+            System.out.println("РАСПРЕДЕЛЕНИЕ ПО ВИДАМ:");
+
+            List<Map.Entry<Class<? extends Animal>, Integer>> sortedEntries = new ArrayList<>(animalCounts.entrySet());
+            sortedEntries.sort((a, b) -> b.getValue().compareTo(a.getValue()));
+
+            for (Map.Entry<Class<? extends Animal>, Integer> entry : sortedEntries) {
                 String animalName = entry.getKey().getSimpleName();
                 int count = entry.getValue();
                 System.out.printf("  %-15s: %d%n", animalName, count);
@@ -75,7 +86,7 @@ public class Island {
             System.out.println("Животных нет");
         }
 
-        System.out.println("=".repeat(40));
+        System.out.println("=".repeat(60));
     }
 
     public int getWidth() {

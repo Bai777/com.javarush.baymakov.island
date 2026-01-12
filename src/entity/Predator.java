@@ -37,7 +37,7 @@ public abstract class Predator extends Animal {
 
             if (probability > 0 && count > 0 && getRandom().nextInt(100) < probability) {
 
-                if (location.removeAnimal(preyClass)) {
+                if (location.removeAnimal(preyClass).isAlive()) {
                     try {
                         Animal sample = preyClass.getDeclaredConstructor().newInstance();
                         increaseSatiety(sample.getWeight());
