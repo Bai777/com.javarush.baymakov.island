@@ -4,8 +4,11 @@ import config.Settings;
 import entity.Animal;
 
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Location {
+    private final ReentrantLock lock = new ReentrantLock();
     private Map<Class<? extends Animal>, Integer> animals;
     private int plantsCount;
     private List<Animal> animalObjects;
@@ -13,46 +16,62 @@ public class Location {
     public Location() {
         this.animals = new HashMap<>();
         this.plantsCount = 0;
-        this.animalObjects = new ArrayList<>();
+        this.animalObjects = new CopyOnWriteArrayList<>();
     }
 
     public boolean addAnimal(Animal animal) {
-        Class<? extends Animal> animalClass = animal.getClass();
-        int currentCount = animals.getOrDefault(animalClass, 0);
-        int maxCount = animal.getMaxCountInCell();
+        lock.lock();
+        try {
+            Class<? extends Animal> animalClass = animal.getClass();
+            int currentCount = animals.getOrDefault(animalClass, 0);
+            int maxCount = animal.getMaxCountInCell();
 
-        if (currentCount < maxCount) {
-            animals.put(animalClass, currentCount + 1);
-            return true;
+            if (currentCount < maxCount) {
+                animals.put(animalClass, currentCount + 1);
+                animalObjects.add(animal);
+                return true;
+            }
+            return false;
+        } finally {
+            lock.unlock();
         }
-        return false;
     }
 
     public boolean removeAnimal(Animal animal) {
-        Class<? extends Animal> animalClass = animal.getClass();
-        int count = animals.getOrDefault(animalClass, 0);
+        lock.lock();
+        try {
+            Class<? extends Animal> animalClass = animal.getClass();
+            int count = animals.getOrDefault(animalClass, 0);
 
-        if (count > 0 && animalObjects.remove(animal)) {
-            animals.put(animalClass, count - 1);
-            return true;
+            if (count > 0 && animalObjects.remove(animal)) {
+                animals.put(animalClass, count - 1);
+                return true;
+            }
+            return false;
+        } finally {
+            lock.unlock();
         }
-        return false;
     }
 
     public Animal removeAnimal(Class<? extends Animal> animalClass) {
-        int count = animals.getOrDefault(animalClass, 0);
-        if (count > 0) {
-            // Ищем первый объект этого класса
-            for (Iterator<Animal> iterator = animalObjects.iterator(); iterator.hasNext();) {
-                Animal animal = iterator.next();
-                if (animal.getClass().equals(animalClass)) {
-                    iterator.remove();
-                    animals.put(animalClass, count - 1);
-                    return animal; // Возвращаем удаленное животное
+        lock.lock();
+        try {
+            int count = animals.getOrDefault(animalClass, 0);
+            if (count > 0) {
+
+                for (Animal animal : animalObjects) {
+                    if (animal.getClass().equals(animalClass)) {
+                        if (animalObjects.remove(animal)) {
+                            animals.put(animalClass, count - 1);
+                            return animal;
+                        }
+                    }
                 }
             }
+            return null;
+        } finally {
+            lock.unlock();
         }
-        return null;
     }
 
     public List<Animal> getAnimalObjects() {
@@ -60,14 +79,19 @@ public class Location {
     }
 
     public void cleanDeadAnimals() {
-        Iterator<Animal> iterator = animalObjects.iterator();
-        while (iterator.hasNext()) {
-            Animal animal = iterator.next();
-            if (!animal.isAlive()) {
-                iterator.remove();
-                Class<? extends Animal> animalClass = animal.getClass();
-                animals.put(animalClass, animals.get(animalClass) - 1);
+        lock.lock();
+        try {
+            Iterator<Animal> iterator = animalObjects.iterator();
+            while (iterator.hasNext()) {
+                Animal animal = iterator.next();
+                if (!animal.isAlive()) {
+                    iterator.remove();
+                    Class<? extends Animal> animalClass = animal.getClass();
+                    animals.put(animalClass, animals.get(animalClass) - 1);
+                }
             }
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -80,18 +104,28 @@ public class Location {
     }
 
     public void addPlants(int count) {
-        plantsCount += count;
-        if (plantsCount > Settings.MAX_PLANTS_IN_CELL) {
-            plantsCount = Settings.MAX_PLANTS_IN_CELL;
+        lock.lock();
+        try {
+            plantsCount += count;
+            if (plantsCount > Settings.MAX_PLANTS_IN_CELL) {
+                plantsCount = Settings.MAX_PLANTS_IN_CELL;
+            }
+        } finally {
+            lock.unlock();
         }
     }
 
     public boolean removePlants(int count) {
-        if (plantsCount >= count) {
-            plantsCount -= count;
-            return true;
+        lock.lock();
+        try {
+            if (plantsCount >= count) {
+                plantsCount -= count;
+                return true;
+            }
+            return false;
+        } finally {
+            lock.unlock();
         }
-        return false;
     }
 
     public int getPlantsCount() {
@@ -99,6 +133,12 @@ public class Location {
     }
 
     public void setPlantsCount(int plantsCount) {
-        this.plantsCount = Math.min(plantsCount, Settings.MAX_PLANTS_IN_CELL);
+        lock.lock();
+        try {
+            this.plantsCount = Math.min(plantsCount, Settings.MAX_PLANTS_IN_CELL);
+        } finally {
+            lock.unlock();
+        }
     }
 }
+
