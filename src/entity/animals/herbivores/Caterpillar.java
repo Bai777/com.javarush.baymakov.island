@@ -3,10 +3,7 @@ package entity.animals.herbivores;
 import entity.Herbivore;
 
 public class Caterpillar extends Herbivore {
-    public Caterpillar() {
-        super(Settings.AnimalParams.CATERPILLAR_WEIGHT,
-                Settings.AnimalParams.CATERPILLAR_MAX_COUNT_IN_CELL,
-                Settings.AnimalParams.CATERPILLAR_SPEED,
-                Settings.AnimalParams.CATERPILLAR_FOOD_NEEDED);
+    public Caterpillar(double weight, int maxCountInCell, int speed, double foodNeeded) {
+        super("caterpillar", weight, maxCountInCell, speed, foodNeeded);
     }
 }

@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="jackson-databind-2.15.2">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../jackson-databind-2.15.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../jackson-dataformat-yaml-2.15.2.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.ideaLibSources/jackson-dataformat-yaml-2.15.2-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

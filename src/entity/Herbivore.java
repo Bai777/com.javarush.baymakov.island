@@ -6,8 +6,8 @@ import logic.Location;
 import java.util.List;
 
 public abstract class Herbivore extends Animal {
-    public Herbivore(double weight, int maxCountInCell, int speed, double foodNeededForSaturation) {
-        super(weight, maxCountInCell, speed, foodNeededForSaturation);
+    protected Herbivore(String animalType, double weight, int maxCountInCell, int speed, double foodNeeded) {
+        super(animalType, weight, maxCountInCell, speed, foodNeeded);
     }
 
     @Override

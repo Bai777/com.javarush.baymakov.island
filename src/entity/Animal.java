@@ -1,28 +1,38 @@
 package entity;
 
+import config.Config;
 import logic.Location;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public abstract class Animal implements Eatable {
-    private double weight;
-    private int maxCountInCell;
-    private int speed;
-    private double foodNeededForSaturation;
-    private double currentSatiety;
-    private boolean isAlive;
-    private Random random;
+public abstract class Animal {
+    protected final double weight;
+    protected final int maxCountInCell;
+    protected final int speed;
+    protected final double foodNeeded;
+    protected double currentSatiety;
+    protected boolean isAlive = true;
+    protected final String animalType;
 
-    public Animal(double weight, int maxCountInCell,
-                  int speed, double foodNeededForSaturation) {
+    protected Animal(String animalType, double weight, int maxCountInCell, int speed, double foodNeeded) {
+        this.animalType = animalType;
         this.weight = weight;
         this.maxCountInCell = maxCountInCell;
         this.speed = speed;
-        this.foodNeededForSaturation = foodNeededForSaturation;
-        this.currentSatiety = foodNeededForSaturation;
-        this.isAlive = true;
-        this.random = new Random();
+        this.foodNeeded = foodNeeded;
+        this.currentSatiety = foodNeeded / 2;
+    }
+
+    protected double getHuntProbability() {
+        Config.AnimalConfig cfg = Config.getInstance().getConfig().getAnimals().getAnimalConfig(animalType);
+        return cfg != null ? cfg.getHuntProbability() : 0.0;
+    }
+
+    protected List<String> getPreyTypes() {
+        Config.AnimalConfig cfg = Config.getInstance().getConfig().getAnimals().getAnimalConfig(animalType);
+        return cfg != null ? cfg.getPreyTypes() : new ArrayList<>();
     }
 
     public double getWeight() {
@@ -38,7 +48,7 @@ public abstract class Animal implements Eatable {
     }
 
     public double getFoodNeededForSaturation() {
-        return foodNeededForSaturation;
+        return foodNeeded;
     }
 
     public double getCurrentSatiety() {
