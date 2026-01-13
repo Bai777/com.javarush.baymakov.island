@@ -1,5 +1,6 @@
 package simulation;
 
+import config.Config;
 import logic.Island;
 
 import java.util.ArrayList;
@@ -11,38 +12,45 @@ public class Scheduler {
     private ExecutorService animalLifecycleExecutor;
     private Simulation simulation;
     private int threadPoolSize;
+    private final Config.SimulationSettings simulationSettings;
 
-    public Scheduler(Simulation simulation) {
+
+    public Scheduler(Simulation simulation, Config.SimulationSettings simulationSettings) {
         this.simulation = simulation;
+        this.simulationSettings = simulationSettings;
         this.scheduledExecutorService = Executors.newScheduledThreadPool(3);
         this.threadPoolSize = Runtime.getRuntime().availableProcessors();
         this.animalLifecycleExecutor = Executors.newFixedThreadPool(threadPoolSize);
     }
 
     public void start() {
+        Config config = Config.getInstance();
+        Config.IslandConfig islandConfig = config.getConfig().getIsland();
+        Config.SimulationSettings simSettings = config.getConfig().getSimulation();
+
         System.out.println("\n" + "=".repeat(50));
         System.out.println("ЗАПУСК МНОГОПОТОЧНОЙ СИМУЛЯЦИИ");
         System.out.println("=".repeat(50));
-        System.out.println("Настройки:");
+        System.out.println("Настройки из конфигурации:");
+        System.out.println("  Размер острова: " + islandConfig.getWidth() + "x" + islandConfig.getHeight());
         System.out.println("  Размер пула потоков: " + threadPoolSize);
-        System.out.println("  Интервал роста растений: " + Settings.PLANT_GROWTH_INTERVAL_MS + " мс");
-        System.out.println("  Интервал жизненного цикла: " + Settings.STATISTICS_INTERVAL_MS + " мс");
-        System.out.println("  Интервал статистики: " + Settings.STATISTICS_INTERVAL_MS + " мс");
+        System.out.println("  Интервал роста растений: " + islandConfig.getPlantGrowthIntervalMs() + " мс");
+        System.out.println("  Интервал жизненного цикла: " + islandConfig.getAnimalLifecycleIntervalMs() + " мс");
+        System.out.println("  Интервал статистики: " + islandConfig.getStatisticsIntervalMs() + " мс");
         System.out.println("=".repeat(50));
 
         scheduledExecutorService.scheduleAtFixedRate(() -> {
             simulation.getIsland().growPlants();
             System.out.println("[Система] Растения выросли на всех локациях");
-        }, 0, Settings.PLANT_GROWTH_INTERVAL_MS, TimeUnit.MILLISECONDS);
+        }, 0, islandConfig.getPlantGrowthIntervalMs(), TimeUnit.MILLISECONDS);
 
-
-        scheduledExecutorService.schedule(() -> {
+        scheduledExecutorService.scheduleAtFixedRate(() -> {
             executeAnimalLifecycle();
-        }, 1000, TimeUnit.MILLISECONDS);
+        }, 1000, islandConfig.getAnimalLifecycleIntervalMs(), TimeUnit.MILLISECONDS);
 
         scheduledExecutorService.scheduleAtFixedRate(() -> {
             simulation.getIsland().printStatistics();
-        }, 0, Settings.STATISTICS_INTERVAL_MS, TimeUnit.MILLISECONDS);
+        }, 0, islandConfig.getStatisticsIntervalMs(), TimeUnit.MILLISECONDS);
 
         System.out.println("Планировщик успешно запущен!");
     }
@@ -52,7 +60,7 @@ public class Scheduler {
         int width = island.getWidth();
         int height = island.getHeight();
 
-        int sectionSize = 10;
+        int sectionSize = simulationSettings.getSectionSizeForThreads();
         List<Callable<Void>> tasks = new ArrayList<>();
 
         for (int x = 0; x < width; x += sectionSize) {
