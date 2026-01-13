@@ -1,6 +1,5 @@
 package simulation;
 
-import config.Settings;
 import entity.Animal;
 import entity.animals.herbivores.*;
 import entity.animals.predators.*;

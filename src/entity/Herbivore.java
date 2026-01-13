@@ -1,6 +1,5 @@
 package entity;
 
-import config.Settings;
 import entity.plants.Plant;
 import logic.Location;
 

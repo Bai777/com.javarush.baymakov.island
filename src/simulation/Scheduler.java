@@ -1,6 +1,5 @@
 package simulation;
 
-import config.Settings;
 import logic.Island;
 
 import java.util.ArrayList;

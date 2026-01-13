@@ -1,6 +1,5 @@
 package entity.animals.predators;
 
-import config.Settings;
 import entity.Predator;
 
 public class Wolf extends Predator {

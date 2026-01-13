@@ -1,0 +1,169 @@
+
+island:
+  width: 100
+  height: 20
+  max_plants_in_cell: 200
+  plant_growth_interval_ms: 2000
+  statistics_interval_ms: 10000
+  animal_lifecycle_interval_ms: 5000
+
+plants:
+  weight: 1.0
+
+animals:
+  herbivores:
+    rabbit:
+      weight: 2.0
+      max_count_in_cell: 150
+      speed: 2
+      food_needed: 0.45
+      icon: "🐇"
+
+    sheep:
+      weight: 70.0
+      max_count_in_cell: 140
+      speed: 3
+      food_needed: 15.0
+      icon: "🐑"
+
+    horse:
+      weight: 400.0
+      max_count_in_cell: 20
+      speed: 4
+      food_needed: 60.0
+      icon: "🐎"
+
+    deer:
+      weight: 300.0
+      max_count_in_cell: 20
+      speed: 4
+      food_needed: 50.0
+      icon: "🦌"
+
+    mouse:
+      weight: 0.05
+      max_count_in_cell: 500
+      speed: 1
+      food_needed: 0.01
+      icon: "🐁"
+
+    goat:
+      weight: 60.0
+      max_count_in_cell: 140
+      speed: 3
+      food_needed: 10.0
+      icon: "🐐"
+
+    boar:
+      weight: 400.0
+      max_count_in_cell: 50
+      speed: 2
+      food_needed: 50.0
+      icon: "🐗"
+
+    buffalo:
+      weight: 700.0
+      max_count_in_cell: 10
+      speed: 3
+      food_needed: 100.0
+      icon: "🐃"
+
+    duck:
+      weight: 1.0
+      max_count_in_cell: 200
+      speed: 4
+      food_needed: 0.15
+      icon: "🦆"
+
+    caterpillar:
+      weight: 0.01
+      max_count_in_cell: 1000
+      speed: 0
+      food_needed: 0.0
+      icon: "🐛"
+
+  predators:
+    wolf:
+      weight: 50.0
+      max_count_in_cell: 30
+      speed: 3
+      food_needed: 8.0
+      icon: "🐺"
+      hunt_probability: 0.8
+      prey_types:
+        - "horse"
+        - "deer"
+        - "rabbit"
+        - "mouse"
+        - "goat"
+        - "sheep"
+        - "boar"
+        - "buffalo"
+        - "duck"
+
+    boa:
+      weight: 15.0
+      max_count_in_cell: 30
+      speed: 1
+      food_needed: 3.0
+      icon: "🐍"
+      hunt_probability: 0.6
+      prey_types:
+        - "fox"
+        - "rabbit"
+        - "mouse"
+        - "duck"
+
+    fox:
+      weight: 8.0
+      max_count_in_cell: 30
+      speed: 2
+      food_needed: 2.0
+      icon: "🦊"
+      hunt_probability: 0.7
+      prey_types:
+        - "rabbit"
+        - "mouse"
+        - "duck"
+        - "caterpillar"
+
+    bear:
+      weight: 500.0
+      max_count_in_cell: 5
+      speed: 2
+      food_needed: 80.0
+      icon: "🐻"
+      hunt_probability: 0.9
+      prey_types:
+        - "boar"
+        - "buffalo"
+        - "deer"
+        - "rabbit"
+        - "mouse"
+        - "goat"
+        - "sheep"
+        - "duck"
+
+    eagle:
+      weight: 6.0
+      max_count_in_cell: 20
+      speed: 3
+      food_needed: 1.0
+      icon: "🦅"
+      hunt_probability: 0.7
+      prey_types:
+        - "fox"
+        - "rabbit"
+        - "mouse"
+        - "duck"
+
+reproduction:
+  min_animals_for_reproduction: 2
+  reproduction_probability: 0.3
+  max_newborns_per_pair: 3
+
+simulation:
+  initial_plants_count: 100
+  section_size_for_threads: 10
+  satiety_decrease_per_tick: 0.1
+  max_simulation_duration_seconds: 300

@@ -1,6 +1,5 @@
 package entity.animals.herbivores;
 
-import config.Settings;
 import entity.Herbivore;
 
 public class Mouse extends Herbivore {

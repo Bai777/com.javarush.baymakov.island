@@ -1,6 +1,5 @@
 package entity.plants;
 
-import config.Settings;
 import entity.Eatable;
 
 public class Plant implements Eatable {

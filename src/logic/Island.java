@@ -1,6 +1,5 @@
 package logic;
 
-import config.Settings;
 import entity.Animal;
 
 import java.util.*;
