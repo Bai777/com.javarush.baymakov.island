@@ -12,12 +12,11 @@ public class Scheduler {
     private ExecutorService animalLifecycleExecutor;
     private Simulation simulation;
     private int threadPoolSize;
-    private final Config.SimulationSettings simulationSettings;
+    private Config simulationSettings;
 
 
-    public Scheduler(Simulation simulation, Config.SimulationSettings simulationSettings) {
+    public Scheduler(Simulation simulation) {
         this.simulation = simulation;
-        this.simulationSettings = simulationSettings;
         this.scheduledExecutorService = Executors.newScheduledThreadPool(3);
         this.threadPoolSize = Runtime.getRuntime().availableProcessors();
         this.animalLifecycleExecutor = Executors.newFixedThreadPool(threadPoolSize);
@@ -60,7 +59,7 @@ public class Scheduler {
         int width = island.getWidth();
         int height = island.getHeight();
 
-        int sectionSize = simulationSettings.getSectionSizeForThreads();
+        int sectionSize = simulationSettings.getConfig().getSimulation().getSectionSizeForThreads();
         List<Callable<Void>> tasks = new ArrayList<>();
 
         for (int x = 0; x < width; x += sectionSize) {

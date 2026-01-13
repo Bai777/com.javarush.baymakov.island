@@ -10,5 +10,6 @@
     <orderEntry type="library" exported="" name="jackson-dataformat-yaml-2.15.2" level="project" />
     <orderEntry type="library" exported="" name="jackson-databind-2.15.2" level="project" />
     <orderEntry type="library" exported="" name="jackson-core-2.15.2" level="project" />
+    <orderEntry type="library" exported="" name="jackson-annotations-2.15.2" level="project" />
   </component>
 </module>

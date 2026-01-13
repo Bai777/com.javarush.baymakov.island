@@ -79,9 +79,9 @@ public abstract class Animal {
             if (!adjacentLocations.isEmpty()) {
                 Location targetLocation = adjacentLocations.get(random.nextInt(adjacentLocations.size()));
 
-                int currentCount = currentLocation.getAnimalCount(this.getClass());
+                int currentCount = currentLocation.getAnimalCount(String.valueOf(this.getClass()));
                 if (currentLocation != targetLocation &&
-                        targetLocation.getAnimalCount(this.getClass()) < maxCountInCell) {
+                        targetLocation.getAnimalCount(String.valueOf(this.getClass())) < maxCountInCell) {
                     currentLocation.removeAnimal(this);
                     targetLocation.addAnimal(this);
                     decreaseSatiety(0.2);
@@ -93,7 +93,7 @@ public abstract class Animal {
     public void multiply(Location currentLocation) {
         if (!isAlive) return;
 
-        int sameTypeCount = currentLocation.getAnimalCount(this.getClass());
+        int sameTypeCount = currentLocation.getAnimalCount(String.valueOf(this.getClass()));
         if (sameTypeCount >= 2 && random.nextInt(100) < 15) {
             if (sameTypeCount < maxCountInCell) {
                 try {

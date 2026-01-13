@@ -51,9 +51,9 @@ public abstract class Herbivore extends Animal {
             if (!adjacentLocations.isEmpty()) {
                 Location targetLocation = adjacentLocations.get(getRandom().nextInt(adjacentLocations.size()));
 
-                int currentCount = currentLocation.getAnimalCount(this.getClass());
+                int currentCount = currentLocation.getAnimalCount(String.valueOf(this.getClass()));
                 if (currentLocation != targetLocation &&
-                        targetLocation.getAnimalCount(this.getClass()) < getMaxCountInCell()) {
+                        targetLocation.getAnimalCount(String.valueOf(this.getClass())) < getMaxCountInCell()) {
 
                     currentLocation.removeAnimal(this.getClass());
                     targetLocation.addAnimal(this);
@@ -67,7 +67,7 @@ public abstract class Herbivore extends Animal {
     public void multiply(Location currentLocation) {
         if (!isAlive()) return;
 
-        int sameTypeCount = currentLocation.getAnimalCount(this.getClass());
+        int sameTypeCount = currentLocation.getAnimalCount(String.valueOf(this.getClass()));
         if (sameTypeCount >= 2 && getRandom().nextInt(100) < 20) {
             if (sameTypeCount < getMaxCountInCell()) {
                 try {

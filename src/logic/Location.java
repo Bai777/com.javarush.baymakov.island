@@ -96,7 +96,7 @@ public class Location {
         }
     }
 
-    public int getAnimalCount(Class<? extends Animal> animalClass) {
+    public int getAnimalCount(String animalClass) {
         return animals.getOrDefault(animalClass, 0);
     }
 
