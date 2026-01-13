@@ -1,5 +1,6 @@
 package logic;
 
+import config.Config;
 import entity.Animal;
 
 import java.util.*;
@@ -12,6 +13,7 @@ public class Location {
     private Map<Class<? extends Animal>, Integer> animals;
     private int plantsCount;
     private List<Animal> animalObjects;
+    Config.IslandConfig islandConfig;
 
     public Location() {
         this.animals = new ConcurrentHashMap<>();
@@ -106,8 +108,8 @@ public class Location {
         lock.lock();
         try {
             plantsCount += count;
-            if (plantsCount > Settings.MAX_PLANTS_IN_CELL) {
-                plantsCount = Settings.MAX_PLANTS_IN_CELL;
+            if (plantsCount > islandConfig.getMaxPlantsInCell()) {
+                plantsCount = islandConfig.getMaxPlantsInCell();
             }
         } finally {
             lock.unlock();
@@ -134,7 +136,7 @@ public class Location {
     public void setPlantsCount(int plantsCount) {
         lock.lock();
         try {
-            this.plantsCount = Math.min(plantsCount, Settings.MAX_PLANTS_IN_CELL);
+            this.plantsCount = Math.min(plantsCount, islandConfig.getMaxPlantsInCell());
         } finally {
             lock.unlock();
         }
