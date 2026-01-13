@@ -37,7 +37,7 @@ public class Island {
         for (int x = 0; x < islandConfig.getWidth(); x++) {
             for (int y = 0; y < islandConfig.getHeight(); y++) {
                 Location location = locations[x][y];
-                int growth = new Random().nextInt(5) + 1;
+                int growth = random.nextInt(5) + 1;
                 location.addPlants(growth);
             }
         }

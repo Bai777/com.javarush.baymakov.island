@@ -15,6 +15,7 @@ public abstract class Animal {
     protected double currentSatiety;
     protected boolean isAlive = true;
     protected final String animalType;
+    private final Random random = new Random();
 
     protected Animal(String animalType, double weight, int maxCountInCell, int speed, double foodNeeded) {
         this.animalType = animalType;
@@ -64,7 +65,7 @@ public abstract class Animal {
     }
 
     public void setCurrentSatiety(double satiety) {
-        this.currentSatiety = Math.min(satiety, foodNeededForSaturation);
+        this.currentSatiety = Math.min(satiety, foodNeeded);
     }
 
     public void eat(Location currentLocation) {
@@ -118,7 +119,7 @@ public abstract class Animal {
     }
 
     public void increaseSatiety(double amount) {
-        currentSatiety = Math.min(currentSatiety + amount, foodNeededForSaturation);
+        currentSatiety = Math.min(currentSatiety + amount, foodNeeded);
     }
 
     public boolean canEat(Eatable food) {

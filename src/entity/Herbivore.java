@@ -1,13 +1,16 @@
 package entity;
 
+import config.Config;
 import entity.plants.Plant;
 import logic.Location;
 
 import java.util.List;
 
 public abstract class Herbivore extends Animal {
+    Config.PlantsConfig plantsConfig;
     protected Herbivore(String animalType, double weight, int maxCountInCell, int speed, double foodNeeded) {
         super(animalType, weight, maxCountInCell, speed, foodNeeded);
+        this.plantsConfig = new Config.PlantsConfig();
     }
 
     @Override
@@ -17,10 +20,10 @@ public abstract class Herbivore extends Animal {
         int plantsCount = currentLocation.getPlantsCount();
         if (plantsCount > 0) {
             double maxCanEat = getFoodNeededForSaturation() * 0.1;
-            double actualEat = Math.min(maxCanEat, plantsCount * Settings.PLANT_WEIGHT);
+            double actualEat = Math.min(maxCanEat, plantsCount * plantsConfig.getWeight());
 
             if (actualEat > 0) {
-                int plantsToRemove = (int) Math.ceil(actualEat / Settings.PLANT_WEIGHT);
+                int plantsToRemove = (int) Math.ceil(actualEat / plantsConfig.getWeight());
                 currentLocation.removePlants(Math.min(plantsToRemove, plantsCount));
                 increaseSatiety(actualEat);
                 return;
