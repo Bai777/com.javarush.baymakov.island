@@ -4,6 +4,7 @@ import config.Settings;
 import entity.Animal;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -14,7 +15,7 @@ public class Location {
     private List<Animal> animalObjects;
 
     public Location() {
-        this.animals = new HashMap<>();
+        this.animals = new ConcurrentHashMap<>();
         this.plantsCount = 0;
         this.animalObjects = new CopyOnWriteArrayList<>();
     }
@@ -58,7 +59,6 @@ public class Location {
         try {
             int count = animals.getOrDefault(animalClass, 0);
             if (count > 0) {
-
                 for (Animal animal : animalObjects) {
                     if (animal.getClass().equals(animalClass)) {
                         if (animalObjects.remove(animal)) {
@@ -141,4 +141,3 @@ public class Location {
         }
     }
 }
-

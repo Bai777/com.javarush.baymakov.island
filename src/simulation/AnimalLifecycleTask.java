@@ -15,10 +15,6 @@ public class AnimalLifecycleTask implements Callable<Void> {
     private final int width;
     private final int height;
 
-    private static final int DEBUG_X = 50;
-    private static final int DEBUG_Y = 10;
-    private static boolean firstRun = true;
-
     public AnimalLifecycleTask(Island island, int startX, int startY, int width, int height) {
         this.island = island;
         this.startX = startX;
@@ -33,19 +29,7 @@ public class AnimalLifecycleTask implements Callable<Void> {
             for (int y = startY; y < startY + height && y < island.getHeight(); y++) {
                 Location location = island.getLocation(x, y);
                 if (location != null) {
-                    if (x == DEBUG_X && y == DEBUG_Y && firstRun) {
-                        System.out.println("\n[ОТЛАДКА] Тестовая локация [" + x + "," + y + "]");
-                        System.out.println("  Животных до цикла: " + location.getAnimalObjects().size());
-                        System.out.println("  Растений до цикла: " + location.getPlantsCount());
-                    }
-
                     processLocation(location, x, y);
-
-                    if (x == DEBUG_X && y == DEBUG_Y && firstRun) {
-                        System.out.println("  Животных после цикла: " + location.getAnimalObjects().size());
-                        System.out.println("  Растений после цикла: " + location.getPlantsCount());
-                        firstRun = false;
-                    }
                 }
             }
         }
@@ -60,18 +44,14 @@ public class AnimalLifecycleTask implements Callable<Void> {
         for (Animal animal : animalsCopy) {
             if (!animal.isAlive()) continue;
 
-            if (x == DEBUG_X && y == DEBUG_Y) {
-                System.out.println("    Обработка: " + animal.getClass().getSimpleName() +
-                        " (сытость: " + animal.getCurrentSatiety() + ")");
-            }
-
             animal.eat(location);
 
             animal.multiply(location);
 
-            List<Location> adjacentLocations = getAdjacentLocations(x, y);
-
-            animal.move(location, adjacentLocations);
+            if (animal.isAlive()) {
+                List<Location> adjacentLocations = getAdjacentLocations(x, y);
+                animal.move(location, adjacentLocations);
+            }
 
             animal.decreaseSatiety(0.1);
         }
