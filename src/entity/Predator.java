@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class Predator extends Animal {
-    public Predator(double weight, int maxCountInCell, int speed, double foodNeededForSaturation) {
-        super(weight, maxCountInCell, speed, foodNeededForSaturation);
+    protected Predator(String animalType, double weight, int maxCountInCell, int speed, double foodNeeded) {
+        super(animalType, weight, maxCountInCell, speed, foodNeeded);
     }
 
     @Override

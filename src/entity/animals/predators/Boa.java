@@ -3,10 +3,7 @@ package entity.animals.predators;
 import entity.Predator;
 
 public class Boa extends Predator {
-    public Boa() {
-        super(Settings.AnimalParams.BOA_WEIGHT,
-                Settings.AnimalParams.BOA_MAX_COUNT_IN_CELL,
-                Settings.AnimalParams.BOA_SPEED,
-                Settings.AnimalParams.BOA_FOOD_NEEDED);
+    public Boa(double weight, int maxCountInCell, int speed, double foodNeeded) {
+        super("boa", weight, maxCountInCell, speed, foodNeeded);
     }
 }
