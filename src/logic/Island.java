@@ -1,35 +1,41 @@
 package logic;
 
+import config.Config;
 import entity.Animal;
 
 import java.util.*;
 
 public class Island {
     private Location[][] locations;
+    private final Config config;
+    private final Config.IslandConfig islandConfig;
+    private final Random random = new Random();
 
     public Island() {
-        this.locations = new Location[Settings.ISLAND_WIDTH][Settings.ISLAND_HEIGHT];
+        this.config = Config.getInstance();
+        this.islandConfig = config.getConfig().getIsland();
+        this.locations = new Location[islandConfig.getWidth()][islandConfig.getHeight()];
         initializeLocations();
     }
 
     private void initializeLocations() {
-        for (int x = 0; x < Settings.ISLAND_WIDTH; x++) {
-            for (int y = 0; y < Settings.ISLAND_HEIGHT; y++) {
+        for (int x = 0; x < islandConfig.getWidth(); x++) {
+            for (int y = 0; y < islandConfig.getHeight(); y++) {
                 locations[x][y] = new Location();
             }
         }
     }
 
     public Location getLocation(int x, int y) {
-        if (x >= 0 && x < Settings.ISLAND_WIDTH && y >= 0 && y < Settings.ISLAND_HEIGHT) {
+        if (x >= 0 && x < islandConfig.getWidth() && y >= 0 && y < islandConfig.getHeight()) {
             return locations[x][y];
         }
         return null;
     }
 
     public void growPlants() {
-        for (int x = 0; x < Settings.ISLAND_WIDTH; x++) {
-            for (int y = 0; y < Settings.ISLAND_HEIGHT; y++) {
+        for (int x = 0; x < islandConfig.getWidth(); x++) {
+            for (int y = 0; y < islandConfig.getHeight(); y++) {
                 Location location = locations[x][y];
                 int growth = new Random().nextInt(5) + 1;
                 location.addPlants(growth);
@@ -43,8 +49,8 @@ public class Island {
         int totalAnimals = 0;
         int deadAnimals = 0;
 
-        for (int x = 0; x < Settings.ISLAND_WIDTH; x++) {
-            for (int y = 0; y < Settings.ISLAND_HEIGHT; y++) {
+        for (int x = 0; x < islandConfig.getWidth(); x++) {
+            for (int y = 0; y < islandConfig.getHeight(); y++) {
                 Location location = locations[x][y];
                 totalPlants += location.getPlantsCount();
 
@@ -65,7 +71,7 @@ public class Island {
         System.out.println("\n" + "=".repeat(60));
         System.out.println("СТАТИСТИКА ОСТРОВА - ТАКТ: " + System.currentTimeMillis());
         System.out.println("=".repeat(60));
-        System.out.println("Размер: " + Settings.ISLAND_WIDTH + "x" + Settings.ISLAND_HEIGHT);
+        System.out.println("Размер: " + islandConfig.getWidth() + "x" + islandConfig.getHeight());
         System.out.println("Растения всего: " + totalPlants);
         System.out.println("Животные всего: " + totalAnimals + " (мертвых: " + deadAnimals + ")");
         System.out.println("-".repeat(60));
@@ -89,11 +95,11 @@ public class Island {
     }
 
     public int getWidth() {
-        return Settings.ISLAND_WIDTH;
+        return islandConfig.getWidth();
     }
 
     public int getHeight() {
-        return Settings.ISLAND_HEIGHT;
+        return islandConfig.getHeight();
     }
 }
 
