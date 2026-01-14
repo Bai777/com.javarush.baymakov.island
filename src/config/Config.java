@@ -1,7 +1,8 @@
 package config;
 
-
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,9 +14,35 @@ public class Config {
 
     private Config() {
         try {
-            ObjectMapper mapper = new ObjectMapper();
-            config = mapper.readValue(new File("simulation-config.yaml"), SimulationConfig.class);
+            ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+
+// Добавьте для отладки
+            System.out.println("Current directory: " + new File(".").getAbsolutePath());
+            File configFile = new File("src/simulation-config.yaml");
+
+            // Добавьте для отладки
+            System.out.println("Looking for config at: " + configFile.getAbsolutePath());
+            System.out.println("Config file exists: " + configFile.exists());
+
+            if (!configFile.exists()) {
+                // Пробуем найти в других местах
+                configFile = new File("simulation-config.yaml");
+                System.out.println("Trying alternative: " + configFile.getAbsolutePath());
+                System.out.println("Alternative exists: " + configFile.exists());
+            }
+
+            if (!configFile.exists()) {
+                throw new RuntimeException("Configuration file not found at: " +
+                        configFile.getAbsolutePath());
+            }
+
+            config = mapper.readValue(configFile, SimulationConfig.class);
+
+            // Добавьте для отладки
+            System.out.println("[Config] Successfully loaded configuration");
         } catch (IOException e) {
+            System.err.println("Config loading error: " + e.getMessage());
+            e.printStackTrace();
             throw new RuntimeException("Failed to load configuration", e);
         }
     }
@@ -62,10 +89,20 @@ public class Config {
     public static class IslandConfig {
         private int width;
         private int height;
-        private int max_plants_in_cell;
-        private long plant_growth_interval_ms;
-        private long statistics_interval_ms;
-        private long animal_lifecycle_interval_ms;
+
+        @JsonProperty("max_plants_in_cell")
+        private int maxPlantsInCell;
+
+
+        @JsonProperty("plant_growth_interval_ms")
+        private long plantGrowthIntervalMs;
+
+
+        @JsonProperty("statistics_interval_ms")
+        private long statisticsIntervalMs;
+
+        @JsonProperty("animal_lifecycle_interval_ms")
+        private long animalLifecycleIntervalMs;
 
         public int getWidth() {
             return width;
@@ -76,19 +113,19 @@ public class Config {
         }
 
         public int getMaxPlantsInCell() {
-            return max_plants_in_cell;
+            return maxPlantsInCell;
         }
 
         public long getPlantGrowthIntervalMs() {
-            return plant_growth_interval_ms;
+            return plantGrowthIntervalMs;
         }
 
         public long getStatisticsIntervalMs() {
-            return statistics_interval_ms;
+            return statisticsIntervalMs;
         }
 
         public long getAnimalLifecycleIntervalMs() {
-            return animal_lifecycle_interval_ms;
+            return animalLifecycleIntervalMs;
         }
     }
 
@@ -128,20 +165,31 @@ public class Config {
     }
 
     public static class AnimalConfig {
+
+        @JsonProperty("max_count_in_cell")
+        private int maxCountInCell;
+
+
+        @JsonProperty("food_needed")
+        private double foodNeeded;
+
+
+        @JsonProperty("hunt_probability")
+        private double huntProbability;
+
+        @JsonProperty("prey_types")
+        private List<String> preyTypes;
+
         private double weight;
-        private int max_count_in_cell;
         private int speed;
-        private double food_needed;
         private String icon;
-        private double hunt_probability;
-        private List<String> prey_types;
 
         public double getWeight() {
             return weight;
         }
 
         public int getMaxCountInCell() {
-            return max_count_in_cell;
+            return maxCountInCell;
         }
 
         public int getSpeed() {
@@ -149,7 +197,7 @@ public class Config {
         }
 
         public double getFoodNeeded() {
-            return food_needed;
+            return foodNeeded;
         }
 
         public String getIcon() {
@@ -157,52 +205,64 @@ public class Config {
         }
 
         public double getHuntProbability() {
-            return hunt_probability;
+            return huntProbability;
         }
 
         public List<String> getPreyTypes() {
-            return prey_types != null ? prey_types : new ArrayList<>();
+            return preyTypes != null ? preyTypes : new ArrayList<>();
         }
     }
 
     public static class ReproductionConfig {
-        private int min_animals_for_reproduction;
-        private double reproduction_probability;
-        private int max_newborns_per_pair;
+        @JsonProperty("min_animals_for_reproduction")
+        private int minAnimalsForReproduction;
+
+        @JsonProperty("reproduction_probability")
+        private double reproductionProbability;
+
+        @JsonProperty("max_newborns_per_pair")
+        private int maxNewbornsPerPair;
 
         public int getMinAnimalsForReproduction() {
-            return min_animals_for_reproduction;
+            return minAnimalsForReproduction;
         }
 
         public double getReproductionProbability() {
-            return reproduction_probability;
+            return reproductionProbability;
         }
 
         public int getMaxNewbornsPerPair() {
-            return max_newborns_per_pair;
+            return maxNewbornsPerPair;
         }
     }
 
     public static class SimulationSettings {
-        private int initial_plants_count;
-        private int section_size_for_threads;
-        private double satiety_decrease_per_tick;
-        private int max_simulation_duration_seconds;
+        @JsonProperty("initial_plants_count")
+        private int initialPlantsCount;
+
+        @JsonProperty("section_size_for_threads")
+        private int sectionSizeForThreads;
+
+        @JsonProperty("satiety_decrease_per_tick")
+        private double satietyDecreasePerTick;
+
+        @JsonProperty("max_simulation_duration_seconds")
+        private int maxSimulationDurationSeconds;
 
         public int getInitialPlantsCount() {
-            return initial_plants_count;
+            return initialPlantsCount;
         }
 
         public int getSectionSizeForThreads() {
-            return section_size_for_threads;
+            return sectionSizeForThreads;
         }
 
         public double getSatietyDecreasePerTick() {
-            return satiety_decrease_per_tick;
+            return satietyDecreasePerTick;
         }
 
         public int getMaxSimulationDurationSeconds() {
-            return max_simulation_duration_seconds;
+            return maxSimulationDurationSeconds;
         }
     }
 }
