@@ -123,6 +123,10 @@ public abstract class Animal {
         }
     }
 
+    protected int getCountInLocation(Location location) {
+        return location.getAnimalCount(getAnimalType());
+    }
+
     public void increaseSatiety(double amount) {
         currentSatiety = Math.min(currentSatiety + amount, foodNeeded);
     }

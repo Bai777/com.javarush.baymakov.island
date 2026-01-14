@@ -113,36 +113,37 @@ public abstract class Predator extends Animal {
 
                 int targetCount = currentLocation.getAnimalCount(getAnimalType());
                 if (currentLocation != targetLocation &&
-                        targetCount < getMaxCountInCell()) {
+                        getCountInLocation(targetLocation) < getMaxCountInCell()) {
 
-                    currentLocation.removeAnimal(this);
-                    targetLocation.addAnimal(this);
-                    decreaseSatiety(0.3);
+                    if (currentLocation.removeAnimal(this)) {
+                        targetLocation.addAnimal(this);
+                        decreaseSatiety(0.3);
+                    }
                 }
             }
         }
     }
 
-    @Override
-    public void multiply(Location currentLocation) {
-        if (!isAlive()) return;
+        @Override
+        public void multiply (Location currentLocation){
+            if (!isAlive()) return;
 
-        int sameTypeCount = currentLocation.getAnimalCount(getAnimalType());
-        if (sameTypeCount >= 2 && getRandom().nextInt(100) < 10) {
-            if (sameTypeCount < getMaxCountInCell()) {
-                try {
-                    Animal baby = this.getClass().getDeclaredConstructor().newInstance();
-                    currentLocation.addAnimal(baby);
-                    decreaseSatiety(1.5);
-                } catch (Exception e) {
-                    e.printStackTrace();
+            int sameTypeCount = getCountInLocation(currentLocation);
+            if (sameTypeCount >= 2 && getRandom().nextInt(100) < 10) {
+                if (sameTypeCount < getMaxCountInCell()) {
+                    try {
+                        Animal baby = this.getClass().getDeclaredConstructor().newInstance();
+                        currentLocation.addAnimal(baby);
+                        decreaseSatiety(1.5);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }
-    }
 
-    @Override
-    public void die() {
-        super.die();
+        @Override
+        public void die () {
+            super.die();
+        }
     }
-}

@@ -11,7 +11,7 @@ public abstract class Herbivore extends Animal {
 
     protected Herbivore(String animalType, double weight, int maxCountInCell, int speed, double foodNeeded) {
         super(animalType, weight, maxCountInCell, speed, foodNeeded);
-        this.plantsConfig = new Config.PlantsConfig();
+        this.plantsConfig = Config.getInstance().getConfig().getPlants();
     }
 
     @Override
@@ -52,13 +52,13 @@ public abstract class Herbivore extends Animal {
             if (!adjacentLocations.isEmpty()) {
                 Location targetLocation = adjacentLocations.get(getRandom().nextInt(adjacentLocations.size()));
 
-                int targetCount = targetLocation.getAnimalCount(getAnimalType());
                 if (currentLocation != targetLocation &&
-                        targetCount < getMaxCountInCell()) {
+                        getCountInLocation(targetLocation) < getMaxCountInCell()) {
 
-                    currentLocation.removeAnimal(this.getClass());
-                    targetLocation.addAnimal(this);
-                    decreaseSatiety(0.15);
+                    if (currentLocation.removeAnimal(this)) {
+                        targetLocation.addAnimal(this);
+                        decreaseSatiety(0.15);
+                    }
                 }
             }
         }
@@ -68,7 +68,7 @@ public abstract class Herbivore extends Animal {
     public void multiply(Location currentLocation) {
         if (!isAlive()) return;
 
-        int sameTypeCount = currentLocation.getAnimalCount(String.valueOf(this.getClass()));
+        int sameTypeCount = getCountInLocation(currentLocation);
         if (sameTypeCount >= 2 && getRandom().nextInt(100) < 20) {
             if (sameTypeCount < getMaxCountInCell()) {
                 try {
