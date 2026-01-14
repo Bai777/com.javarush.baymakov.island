@@ -4,32 +4,33 @@ import config.Config;
 import entity.Animal;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class Location {
     private final ReentrantLock lock = new ReentrantLock();
-    private Map<Class<? extends Animal>, Integer> animals;
+    private Map<String, Integer> animals;
     private int plantsCount;
     private List<Animal> animalObjects;
-    Config.IslandConfig islandConfig;
+    private final Config config;
+    private final int maxPlantsInCell;
 
     public Location() {
-        this.animals = new ConcurrentHashMap<>();
+        this.config = Config.getInstance();
+        this.maxPlantsInCell = config.getConfig().getIsland().getMaxPlantsInCell();
+        this.animals = new HashMap<>();
         this.plantsCount = 0;
-        this.animalObjects = new CopyOnWriteArrayList<>();
+        this.animalObjects = new ArrayList<>();
     }
 
     public boolean addAnimal(Animal animal) {
         lock.lock();
         try {
-            Class<? extends Animal> animalClass = animal.getClass();
-            int currentCount = animals.getOrDefault(animalClass, 0);
+            String animalType = animal.getAnimalType();
+            int currentCount = animals.getOrDefault(animalType, 0);
             int maxCount = animal.getMaxCountInCell();
 
             if (currentCount < maxCount) {
-                animals.put(animalClass, currentCount + 1);
+                animals.put(animalType, currentCount + 1);
                 animalObjects.add(animal);
                 return true;
             }
@@ -42,11 +43,11 @@ public class Location {
     public boolean removeAnimal(Animal animal) {
         lock.lock();
         try {
-            Class<? extends Animal> animalClass = animal.getClass();
-            int count = animals.getOrDefault(animalClass, 0);
+            String animalType = animal.getAnimalType();
+            int count = animals.getOrDefault(animalType, 0);
 
             if (count > 0 && animalObjects.remove(animal)) {
-                animals.put(animalClass, count - 1);
+                animals.put(animalType, count - 1);
                 return true;
             }
             return false;
@@ -55,15 +56,15 @@ public class Location {
         }
     }
 
-    public Animal removeAnimal(Class<? extends Animal> animalClass) {
+    public Animal removeAnimal(String animalType) {
         lock.lock();
         try {
-            int count = animals.getOrDefault(animalClass, 0);
+            int count = animals.getOrDefault(animalType, 0);
             if (count > 0) {
                 for (Animal animal : animalObjects) {
-                    if (animal.getClass().equals(animalClass)) {
+                    if (animal.getAnimalType().equals(animalType)) {
                         if (animalObjects.remove(animal)) {
-                            animals.put(animalClass, count - 1);
+                            animals.put(animalType, count - 1);
                             return animal;
                         }
                     }
@@ -76,7 +77,12 @@ public class Location {
     }
 
     public List<Animal> getAnimalObjects() {
-        return new ArrayList<>(animalObjects);
+        lock.lock();
+        try {
+            return new ArrayList<>(animalObjects);
+        } finally {
+            lock.unlock();
+        }
     }
 
     public void cleanDeadAnimals() {
@@ -87,8 +93,11 @@ public class Location {
                 Animal animal = iterator.next();
                 if (!animal.isAlive()) {
                     iterator.remove();
-                    Class<? extends Animal> animalClass = animal.getClass();
-                    animals.put(animalClass, animals.get(animalClass) - 1);
+                    String animalType = animal.getAnimalType();
+                    int currentCount = animals.getOrDefault(animalType, 0);
+                    if (currentCount > 0) {
+                        animals.put(animalType, currentCount - 1);
+                    }
                 }
             }
         } finally {
@@ -96,20 +105,30 @@ public class Location {
         }
     }
 
-    public int getAnimalCount(String animalClass) {
-        return animals.getOrDefault(animalClass, 0);
+    public int getAnimalCount(String animalType) {
+        lock.lock();
+        try {
+            return animals.getOrDefault(animalType, 0);
+        } finally {
+            lock.unlock();
+        }
     }
 
-    public Map<Class<? extends Animal>, Integer> getAnimals() {
-        return new HashMap<>(animals);
+    public Map<String, Integer> getAnimals() {
+        lock.lock();
+        try {
+            return new HashMap<>(animals);
+        } finally {
+            lock.unlock();
+        }
     }
 
     public void addPlants(int count) {
         lock.lock();
         try {
             plantsCount += count;
-            if (plantsCount > islandConfig.getMaxPlantsInCell()) {
-                plantsCount = islandConfig.getMaxPlantsInCell();
+            if (plantsCount > maxPlantsInCell) {
+                plantsCount = maxPlantsInCell;
             }
         } finally {
             lock.unlock();
@@ -130,15 +149,21 @@ public class Location {
     }
 
     public int getPlantsCount() {
-        return plantsCount;
+        lock.lock();
+        try {
+            return plantsCount;
+        } finally {
+            lock.unlock();
+        }
     }
 
     public void setPlantsCount(int plantsCount) {
         lock.lock();
         try {
-            this.plantsCount = Math.min(plantsCount, islandConfig.getMaxPlantsInCell());
+            this.plantsCount = Math.min(plantsCount, maxPlantsInCell);
         } finally {
             lock.unlock();
         }
     }
 }
+
