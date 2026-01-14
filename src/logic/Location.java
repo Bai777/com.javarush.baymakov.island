@@ -76,6 +76,26 @@ public class Location {
         }
     }
 
+    public Animal removeAnimal(Class<? extends Animal> animalClass) {
+        lock.lock();
+        try {
+            String animalType = animalClass.getSimpleName().toLowerCase();
+            return removeAnimal(animalType);
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    public int getAnimalCount(Class<? extends Animal> animalClass) {
+        lock.lock();
+        try {
+            String animalType = animalClass.getSimpleName().toLowerCase();
+            return animals.getOrDefault(animalType, 0);
+        } finally {
+            lock.unlock();
+        }
+    }
+
     public List<Animal> getAnimalObjects() {
         lock.lock();
         try {

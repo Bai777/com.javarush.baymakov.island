@@ -23,33 +23,70 @@ public abstract class Predator extends Animal {
     }
 
     protected boolean tryEatAnimals(Location location) {
-        Map<Class<? extends Animal>, Integer> animals = location.getAnimals();
+        Map<String, Integer> animals = location.getAnimals();
 
-        for (Map.Entry<Class<? extends Animal>, Integer> entry : animals.entrySet()) {
-            Class<? extends Animal> preyClass = entry.getKey();
+        for (Map.Entry<String, Integer> entry : animals.entrySet()) {
+            String preyType = entry.getKey();
             int count = entry.getValue();
 
-            if (preyClass.equals(this.getClass())) {
+            if (preyType.equals(getAnimalType())) {
                 continue;
             }
+
+            Class<? extends Animal> preyClass = getAnimalClassFromType(preyType);
+            if (preyClass == null) continue;
 
             int probability = getEatingProbability(preyClass);
 
             if (probability > 0 && count > 0 && getRandom().nextInt(100) < probability) {
 
-                if (location.removeAnimal(preyClass).isAlive()) {
-                    try {
-                        Animal sample = preyClass.getDeclaredConstructor().newInstance();
-                        increaseSatiety(sample.getWeight());
-                        return true;
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+                Animal prey = location.removeAnimal(preyType);
+
+                if (prey != null && prey.isAlive()) {
+                    increaseSatiety(prey.getWeight());
+                    return true;
                 }
             }
         }
 
         return false;
+    }
+
+    private Class<? extends Animal> getAnimalClassFromType(String animalType) {
+        switch (animalType.toLowerCase()) {
+            case "wolf":
+                return entity.animals.predators.Wolf.class;
+            case "boa":
+                return entity.animals.predators.Boa.class;
+            case "fox":
+                return entity.animals.predators.Fox.class;
+            case "bear":
+                return entity.animals.predators.Bear.class;
+            case "eagle":
+                return entity.animals.predators.Eagle.class;
+            case "horse":
+                return entity.animals.herbivores.Horse.class;
+            case "deer":
+                return entity.animals.herbivores.Deer.class;
+            case "rabbit":
+                return entity.animals.herbivores.Rabbit.class;
+            case "mouse":
+                return entity.animals.herbivores.Mouse.class;
+            case "goat":
+                return entity.animals.herbivores.Goat.class;
+            case "sheep":
+                return entity.animals.herbivores.Sheep.class;
+            case "boar":
+                return entity.animals.herbivores.Boar.class;
+            case "buffalo":
+                return entity.animals.herbivores.Buffalo.class;
+            case "duck":
+                return entity.animals.herbivores.Duck.class;
+            case "caterpillar":
+                return entity.animals.herbivores.Caterpillar.class;
+            default:
+                return null;
+        }
     }
 
     @Override
@@ -74,11 +111,11 @@ public abstract class Predator extends Animal {
             if (!adjacentLocations.isEmpty()) {
                 Location targetLocation = adjacentLocations.get(getRandom().nextInt(adjacentLocations.size()));
 
-                int currentCount = currentLocation.getAnimalCount(String.valueOf(this.getClass()));
+                int currentCount = currentLocation.getAnimalCount(getAnimalType());
                 if (currentLocation != targetLocation &&
-                        targetLocation.getAnimalCount(String.valueOf(this.getClass())) < getMaxCountInCell()) {
+                        targetLocation.getAnimalCount(getAnimalType()) < getMaxCountInCell()) {
 
-                    currentLocation.removeAnimal(this.getClass());
+                    currentLocation.removeAnimal(this);
                     targetLocation.addAnimal(this);
                     decreaseSatiety(0.3);
                 }
@@ -90,7 +127,7 @@ public abstract class Predator extends Animal {
     public void multiply(Location currentLocation) {
         if (!isAlive()) return;
 
-        int sameTypeCount = currentLocation.getAnimalCount(String.valueOf(this.getClass()));
+        int sameTypeCount = currentLocation.getAnimalCount(getAnimalType());
         if (sameTypeCount >= 2 && getRandom().nextInt(100) < 10) {
             if (sameTypeCount < getMaxCountInCell()) {
                 try {
