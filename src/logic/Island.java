@@ -44,7 +44,7 @@ public class Island {
     }
 
     public void printStatistics() {
-        Map<Class<? extends Animal>, Integer> animalCounts = new HashMap<>();
+        Map<String, Integer> animalCounts = new HashMap<>();
         int totalPlants = 0;
         int totalAnimals = 0;
         int deadAnimals = 0;
@@ -62,8 +62,8 @@ public class Island {
                         deadAnimals++;
                     }
 
-                    Class<? extends Animal> animalClass = animal.getClass();
-                    animalCounts.put(animalClass, animalCounts.getOrDefault(animalClass, 0) + 1);
+                    String animalType = animal.getAnimalType();
+                    animalCounts.put(animalType, animalCounts.getOrDefault(animalType, 0) + 1);
                 }
             }
         }
@@ -79,11 +79,11 @@ public class Island {
         if (!animalCounts.isEmpty()) {
             System.out.println("РАСПРЕДЕЛЕНИЕ ПО ВИДАМ:");
 
-            List<Map.Entry<Class<? extends Animal>, Integer>> sortedEntries = new ArrayList<>(animalCounts.entrySet());
+            List<Map.Entry<String, Integer>> sortedEntries = new ArrayList<>(animalCounts.entrySet());
             sortedEntries.sort((a, b) -> b.getValue().compareTo(a.getValue()));
 
-            for (Map.Entry<Class<? extends Animal>, Integer> entry : sortedEntries) {
-                String animalName = entry.getKey().getSimpleName();
+            for (Map.Entry<String, Integer> entry : sortedEntries) {
+                String animalName = entry.getKey();
                 int count = entry.getValue();
                 System.out.printf("  %-15s: %d%n", animalName, count);
             }
