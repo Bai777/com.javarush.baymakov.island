@@ -26,6 +26,10 @@ public abstract class Animal {
         this.currentSatiety = foodNeeded / 2;
     }
 
+    public String getAnimalType() {
+        return animalType;
+    }
+
     protected double getHuntProbability() {
         Config.AnimalConfig cfg = Config.getInstance().getConfig().getAnimals().getAnimalConfig(animalType);
         return cfg != null ? cfg.getHuntProbability() : 0.0;
@@ -72,16 +76,17 @@ public abstract class Animal {
         decreaseSatiety(0.5);
     }
 
-    public void move(Location currentLocation, List<Location> adjacentLocations) {
+    public void move(Location currentLocation,
+                     List<Location> adjacentLocations) {
         if (!isAlive || speed == 0) return;
 
         if (random.nextInt(100) < 30) {
             if (!adjacentLocations.isEmpty()) {
                 Location targetLocation = adjacentLocations.get(random.nextInt(adjacentLocations.size()));
 
-                int currentCount = currentLocation.getAnimalCount(String.valueOf(this.getClass()));
+                int currentCount = currentLocation.getAnimalCount(this.getAnimalType());
                 if (currentLocation != targetLocation &&
-                        targetLocation.getAnimalCount(String.valueOf(this.getClass())) < maxCountInCell) {
+                        targetLocation.getAnimalCount(this.getAnimalType()) < maxCountInCell) {
                     currentLocation.removeAnimal(this);
                     targetLocation.addAnimal(this);
                     decreaseSatiety(0.2);
@@ -93,7 +98,7 @@ public abstract class Animal {
     public void multiply(Location currentLocation) {
         if (!isAlive) return;
 
-        int sameTypeCount = currentLocation.getAnimalCount(String.valueOf(this.getClass()));
+        int sameTypeCount = currentLocation.getAnimalCount(this.getAnimalType());
         if (sameTypeCount >= 2 && random.nextInt(100) < 15) {
             if (sameTypeCount < maxCountInCell) {
                 try {
