@@ -16,16 +16,11 @@ public class Config {
         try {
             ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
-// Добавьте для отладки
-            System.out.println("Current directory: " + new File(".").getAbsolutePath());
             File configFile = new File("src/simulation-config.yaml");
 
-            // Добавьте для отладки
-            System.out.println("Looking for config at: " + configFile.getAbsolutePath());
             System.out.println("Config file exists: " + configFile.exists());
 
             if (!configFile.exists()) {
-                // Пробуем найти в других местах
                 configFile = new File("simulation-config.yaml");
                 System.out.println("Trying alternative: " + configFile.getAbsolutePath());
                 System.out.println("Alternative exists: " + configFile.exists());
@@ -38,8 +33,6 @@ public class Config {
 
             config = mapper.readValue(configFile, SimulationConfig.class);
 
-            // Добавьте для отладки
-            System.out.println("[Config] Successfully loaded configuration");
         } catch (IOException e) {
             System.err.println("Config loading error: " + e.getMessage());
             e.printStackTrace();
@@ -169,10 +162,8 @@ public class Config {
         @JsonProperty("max_count_in_cell")
         private int maxCountInCell;
 
-
         @JsonProperty("food_needed")
         private double foodNeeded;
-
 
         @JsonProperty("hunt_probability")
         private double huntProbability;

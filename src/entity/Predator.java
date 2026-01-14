@@ -111,9 +111,9 @@ public abstract class Predator extends Animal {
             if (!adjacentLocations.isEmpty()) {
                 Location targetLocation = adjacentLocations.get(getRandom().nextInt(adjacentLocations.size()));
 
-                int currentCount = currentLocation.getAnimalCount(getAnimalType());
+                int targetCount = currentLocation.getAnimalCount(getAnimalType());
                 if (currentLocation != targetLocation &&
-                        targetLocation.getAnimalCount(getAnimalType()) < getMaxCountInCell()) {
+                        targetCount < getMaxCountInCell()) {
 
                     currentLocation.removeAnimal(this);
                     targetLocation.addAnimal(this);

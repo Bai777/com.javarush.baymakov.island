@@ -2,8 +2,6 @@ package simulation;
 
 import config.Config;
 import entity.Animal;
-import entity.animals.herbivores.*;
-import entity.animals.predators.*;
 import factory.EntityFactory;
 import logic.Island;
 import logic.Location;

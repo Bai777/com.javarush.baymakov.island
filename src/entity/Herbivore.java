@@ -8,6 +8,7 @@ import java.util.List;
 
 public abstract class Herbivore extends Animal {
     Config.PlantsConfig plantsConfig;
+
     protected Herbivore(String animalType, double weight, int maxCountInCell, int speed, double foodNeeded) {
         super(animalType, weight, maxCountInCell, speed, foodNeeded);
         this.plantsConfig = new Config.PlantsConfig();
@@ -51,9 +52,9 @@ public abstract class Herbivore extends Animal {
             if (!adjacentLocations.isEmpty()) {
                 Location targetLocation = adjacentLocations.get(getRandom().nextInt(adjacentLocations.size()));
 
-                int currentCount = currentLocation.getAnimalCount(String.valueOf(this.getClass()));
+                int targetCount = targetLocation.getAnimalCount(getAnimalType());
                 if (currentLocation != targetLocation &&
-                        targetLocation.getAnimalCount(String.valueOf(this.getClass())) < getMaxCountInCell()) {
+                        targetCount < getMaxCountInCell()) {
 
                     currentLocation.removeAnimal(this.getClass());
                     targetLocation.addAnimal(this);
