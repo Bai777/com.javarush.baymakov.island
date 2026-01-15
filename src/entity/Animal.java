@@ -4,6 +4,7 @@ import config.Config;
 import factory.EntityFactory;
 import logic.Location;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -62,10 +63,6 @@ public abstract class Animal {
         this.currentSatiety = Math.min(currentSatiety, foodNeeded);
     }
 
-    public int getEatingProbability(Class<? extends Animal> preyClass) {
-        return 0;
-    }
-
     public void eat(Location currentLocation) {
         if (!isAlive) return;
 
@@ -90,23 +87,12 @@ public abstract class Animal {
     }
 
     public void multiply(Location currentLocation) {
-        if (!isAlive) return;
-        Config.ReproductionConfig reprodConfig = Config.getInstance().getConfig().getReproduction();
-        int sameTypeCount = currentLocation.getAnimalCount(this.getAnimalType());
-        if (sameTypeCount >= reprodConfig.getMinAnimalsForReproduction()) {
-            if (random.nextDouble() < reprodConfig.getReproductionProbability() &&
-                    sameTypeCount < maxCountInCell) {
-
-                int maxNewborns = reprodConfig.getMaxNewbornsPerPair();
-                int newborns = Math.min(maxNewborns, maxCountInCell - sameTypeCount);
-
-                decreaseSatiety(0.5);
-            }
-        }
     }
 
     public Animal multiplyWithFactory(Location currentLocation, EntityFactory factory) {
-        if (!isAlive) return null;
+        List<Animal> babies = new ArrayList<>();
+
+        if (!isAlive) return (Animal) babies;
 
         int sameTypeCount = currentLocation.getAnimalCount(this.getAnimalType());
         Config.ReproductionConfig reprodConfig = Config.getInstance().getConfig().getReproduction();
@@ -116,20 +102,27 @@ public abstract class Animal {
             if (random.nextDouble() < reprodConfig.getReproductionProbability() &&
                     sameTypeCount < maxCountInCell) {
 
-                try {
-                    Animal baby = factory.createBabyAnimal(this.getAnimalType());
-                    if (baby != null) {
-                        baby.setCurrentSatiety(baby.getFoodNeededForSaturation() / 2);
+                // Сколько детенышей можно родить
+                int maxNewborns = reprodConfig.getMaxNewbornsPerPair();
+                int availableSpace = maxCountInCell - sameTypeCount;
+                int newborns = Math.min(maxNewborns, availableSpace);
 
-                        this.decreaseSatiety(1.0);
-
-                        return baby;
+                if (newborns > 0) {
+                    // Создаем детенышей
+                    for (int i = 0; i < newborns; i++) {
+                        try {
+                            Animal baby = factory.createBabyAnimal(this.getAnimalType());
+                            if (baby != null) {
+                                baby.setCurrentSatiety(baby.getFoodNeededForSaturation() / 2);
+                                babies.add(baby);
+                            }catch(Exception e){
+                                System.err.println("Ошибка создания детеныша " + getAnimalType() + ": " + e.getMessage());
+                            }
+                        }
+                        this.decreaseSatiety(1.0 * newborns);
                     }
-                } catch (Exception e) {
-                    System.err.println("Ошибка создания детеныша " + getAnimalType() + ": " + e.getMessage());
                 }
             }
-        }
         return null;
     }
 

@@ -30,7 +30,7 @@ public abstract class Predator extends Animal {
                 continue;
             }
 
-            int probability = getEatingProbability(prey.getClass());
+            int probability = EatingProbability.getProbability(this.getClass(), prey.getClass());
 
             if (probability > 0 && getRandom().nextInt(100) < probability) {
                 if (location.removeAnimal(prey)) {
@@ -41,11 +41,6 @@ public abstract class Predator extends Animal {
         }
 
         return false;
-    }
-
-    @Override
-    public int getEatingProbability(Class<? extends Animal> preyClass) {
-        return EatingProbability.getProbability(this.getClass(), preyClass);
     }
 
     @Override

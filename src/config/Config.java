@@ -23,16 +23,16 @@ public class Config {
             }
 
             if (!configFile.exists()) {
-                throw new RuntimeException("Configuration file not found at: " +
+                throw new RuntimeException("Конфигурационный файл не найден: " +
                         configFile.getAbsolutePath());
             }
 
             config = mapper.readValue(configFile, SimulationConfig.class);
 
         } catch (IOException e) {
-            System.err.println("Config loading error: " + e.getMessage());
+            System.err.println("Ошибка загрузки конфигурации: " + e.getMessage());
             e.printStackTrace();
-            throw new RuntimeException("Failed to load configuration", e);
+            throw new RuntimeException("Не удалось загрузить конфигурацию", e);
         }
     }
 

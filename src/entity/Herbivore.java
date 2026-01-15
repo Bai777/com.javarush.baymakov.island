@@ -37,11 +37,6 @@ public abstract class Herbivore extends Animal {
     }
 
     @Override
-    public int getEatingProbability(Class<? extends Animal> preyClass) {
-        return 0;
-    }
-
-    @Override
     public void move(Location currentLocation, List<Location> adjacentLocations) {
         if (!isAlive() || getSpeed() == 0) return;
 
