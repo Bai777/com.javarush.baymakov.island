@@ -12,7 +12,7 @@ public class Scheduler {
     private ExecutorService animalLifecycleExecutor;
     private Simulation simulation;
     private int threadPoolSize;
-    private Config simulationSettings;
+    private Config config;
 
 
     public Scheduler(Simulation simulation) {
@@ -20,23 +20,13 @@ public class Scheduler {
         this.scheduledExecutorService = Executors.newScheduledThreadPool(3);
         this.threadPoolSize = Runtime.getRuntime().availableProcessors();
         this.animalLifecycleExecutor = Executors.newFixedThreadPool(threadPoolSize);
+        this.config = Config.getInstance();
     }
 
     public void start() {
-        Config config = Config.getInstance();
         Config.IslandConfig islandConfig = config.getConfig().getIsland();
-        Config.SimulationSettings simSettings = config.getConfig().getSimulation();
 
-        System.out.println("\n" + "=".repeat(50));
-        System.out.println("ЗАПУСК МНОГОПОТОЧНОЙ СИМУЛЯЦИИ");
-        System.out.println("=".repeat(50));
-        System.out.println("Настройки из конфигурации:");
-        System.out.println("  Размер острова: " + islandConfig.getWidth() + "x" + islandConfig.getHeight());
-        System.out.println("  Размер пула потоков: " + threadPoolSize);
-        System.out.println("  Интервал роста растений: " + islandConfig.getPlantGrowthIntervalMs() + " мс");
-        System.out.println("  Интервал жизненного цикла: " + islandConfig.getAnimalLifecycleIntervalMs() + " мс");
-        System.out.println("  Интервал статистики: " + islandConfig.getStatisticsIntervalMs() + " мс");
-        System.out.println("=".repeat(50));
+        System.out.println("\nСимуляция запущена...\n");
 
         scheduledExecutorService.scheduleAtFixedRate(() -> {
             simulation.getIsland().growPlants();
@@ -49,9 +39,7 @@ public class Scheduler {
 
         scheduledExecutorService.scheduleAtFixedRate(() -> {
             simulation.getIsland().printStatistics();
-        }, 0, islandConfig.getStatisticsIntervalMs(), TimeUnit.MILLISECONDS);
-
-        System.out.println("Планировщик успешно запущен!");
+        }, 2000, islandConfig.getStatisticsIntervalMs(), TimeUnit.MILLISECONDS);
     }
 
     private void executeAnimalLifecycle() {
@@ -59,7 +47,7 @@ public class Scheduler {
         int width = island.getWidth();
         int height = island.getHeight();
 
-        int sectionSize = simulationSettings.getConfig().getSimulation().getSectionSizeForThreads();
+        int sectionSize = config.getConfig().getSimulation().getSectionSizeForThreads();
         List<Callable<Void>> tasks = new ArrayList<>();
 
         for (int x = 0; x < width; x += sectionSize) {
@@ -77,16 +65,12 @@ public class Scheduler {
             for (Future<Void> future : futures) {
                 future.get();
             }
-
-            System.out.println("[Система] Жизненный цикл животных завершен для всего острова");
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
     }
 
     public void stop() {
-        System.out.println("\nОстановка планировщика...");
-
         scheduledExecutorService.shutdown();
         animalLifecycleExecutor.shutdown();
 
@@ -102,7 +86,5 @@ public class Scheduler {
             scheduledExecutorService.shutdownNow();
             animalLifecycleExecutor.shutdownNow();
         }
-
-        System.out.println("Планировщик остановлен!");
     }
 }

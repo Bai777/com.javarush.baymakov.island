@@ -2,6 +2,7 @@ package logic;
 
 import config.Config;
 import entity.Animal;
+import factory.EntityFactory;
 
 import java.util.*;
 
@@ -10,6 +11,7 @@ public class Island {
     private final Config config;
     private final Config.IslandConfig islandConfig;
     private final Random random = new Random();
+    private final EntityFactory factory = EntityFactory.getInstance();
 
     public Island() {
         this.config = Config.getInstance();
@@ -44,10 +46,12 @@ public class Island {
     }
 
     public void printStatistics() {
-        Map<String, Integer> animalCounts = new HashMap<>();
+        Map<String, Integer> animalCounts = new LinkedHashMap<>();
+        Map<String, Integer> deadAnimalCounts = new LinkedHashMap<>();
+
         int totalPlants = 0;
         int totalAnimals = 0;
-        int deadAnimals = 0;
+        int totalDeadAnimals  = 0;
 
         for (int x = 0; x < islandConfig.getWidth(); x++) {
             for (int y = 0; y < islandConfig.getHeight(); y++) {
@@ -58,40 +62,63 @@ public class Island {
                 totalAnimals += animals.size();
 
                 for (Animal animal : animals) {
-                    if (!animal.isAlive()) {
-                        deadAnimals++;
-                    }
-
                     String animalType = animal.getAnimalType();
-                    animalCounts.put(animalType, animalCounts.getOrDefault(animalType, 0) + 1);
+                    if (!animal.isAlive()) {
+                        totalDeadAnimals ++;
+                        deadAnimalCounts.put(animalType, deadAnimalCounts.getOrDefault(animalType, 0) + 1);
+                    }else {
+                        animalCounts.put(animalType, animalCounts.getOrDefault(animalType, 0) + 1);
+                    }
                 }
             }
         }
 
         System.out.println("\n" + "=".repeat(60));
-        System.out.println("СТАТИСТИКА ОСТРОВА - ТАКТ: " + System.currentTimeMillis());
+        System.out.println("СТАТИСТИКА ОСТРОВА");
         System.out.println("=".repeat(60));
-        System.out.println("Размер: " + islandConfig.getWidth() + "x" + islandConfig.getHeight());
-        System.out.println("Растения всего: " + totalPlants);
-        System.out.println("Животные всего: " + totalAnimals + " (мертвых: " + deadAnimals + ")");
+        System.out.println("Общее количество растений: " + totalPlants);
+        System.out.println("Общее количество животных: " + totalAnimals +
+                " (живых: " + (totalAnimals - totalDeadAnimals ) +
+                ", мертвых: " + totalDeadAnimals  + ")");
         System.out.println("-".repeat(60));
 
+        if (!deadAnimalCounts.isEmpty()) {
+            System.out.println("-".repeat(70));
+            System.out.println("УМЕРШИЕ ЖИВОТНЫЕ:");
+            for (Map.Entry<String, Integer> entry : deadAnimalCounts.entrySet()) {
+                getEntryKeyAndValue(entry);
+            }
+        }
+
         if (!animalCounts.isEmpty()) {
-            System.out.println("РАСПРЕДЕЛЕНИЕ ПО ВИДАМ:");
+            System.out.println("ЖИВОТНЫЕ ПО ВИДАМ:");
 
             List<Map.Entry<String, Integer>> sortedEntries = new ArrayList<>(animalCounts.entrySet());
             sortedEntries.sort((a, b) -> b.getValue().compareTo(a.getValue()));
 
             for (Map.Entry<String, Integer> entry : sortedEntries) {
-                String animalName = entry.getKey();
-                int count = entry.getValue();
-                System.out.printf("  %-15s: %d%n", animalName, count);
+                getEntryKeyAndValue(entry);
             }
         } else {
-            System.out.println("Животных нет");
+            System.out.println("Животных нет на острове");
         }
 
         System.out.println("=".repeat(60));
+    }
+
+    private void getEntryKeyAndValue(Map.Entry<String, Integer> entry) {
+        String animalName = entry.getKey();
+        int count = entry.getValue();
+        String icon = "❓";
+        try {
+            Config.AnimalConfig animalConfig = factory.getAnimalConfig(animalName);
+            if (animalConfig != null && animalConfig.getIcon() != null) {
+                icon = animalConfig.getIcon();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        System.out.printf("  %s %-15s: %d%n", icon, animalName, count);
     }
 
     public int getWidth() {

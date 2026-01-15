@@ -1,7 +1,7 @@
 package entity;
 
 import config.Config;
-import entity.plants.Plant;
+import factory.EntityFactory;
 import logic.Location;
 
 import java.util.List;
@@ -20,23 +20,20 @@ public abstract class Herbivore extends Animal {
 
         int plantsCount = currentLocation.getPlantsCount();
         if (plantsCount > 0) {
-            double maxCanEat = getFoodNeededForSaturation() * 0.1;
+            double maxCanEat = getFoodNeededForSaturation() * 0.3;
             double actualEat = Math.min(maxCanEat, plantsCount * plantsConfig.getWeight());
 
             if (actualEat > 0) {
                 int plantsToRemove = (int) Math.ceil(actualEat / plantsConfig.getWeight());
                 currentLocation.removePlants(Math.min(plantsToRemove, plantsCount));
-                increaseSatiety(actualEat);
-                return;
+                if (currentLocation.removePlants(Math.min(plantsToRemove, plantsCount))) {
+                    increaseSatiety(actualEat);
+                    return;
+                }
             }
         }
 
         decreaseSatiety(0.3);
-    }
-
-    @Override
-    public boolean canEat(Eatable food) {
-        return food instanceof Plant;
     }
 
     @Override
@@ -72,9 +69,10 @@ public abstract class Herbivore extends Animal {
         if (sameTypeCount >= 2 && getRandom().nextInt(100) < 20) {
             if (sameTypeCount < getMaxCountInCell()) {
                 try {
-                    Animal baby = this.getClass().getDeclaredConstructor().newInstance();
-                    currentLocation.addAnimal(baby);
-                    decreaseSatiety(0.8);
+                    Animal baby = multiplyWithFactory(currentLocation, EntityFactory.getInstance());
+                    if (baby != null && currentLocation.addAnimal(baby)) {
+                        decreaseSatiety(0.8);
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

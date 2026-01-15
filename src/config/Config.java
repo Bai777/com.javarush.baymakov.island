@@ -18,12 +18,8 @@ public class Config {
 
             File configFile = new File("src/simulation-config.yaml");
 
-            System.out.println("Config file exists: " + configFile.exists());
-
             if (!configFile.exists()) {
                 configFile = new File("simulation-config.yaml");
-                System.out.println("Trying alternative: " + configFile.getAbsolutePath());
-                System.out.println("Alternative exists: " + configFile.exists());
             }
 
             if (!configFile.exists()) {

@@ -14,6 +14,15 @@ public class EntityFactory {
     private final Map<String, Supplier<Animal>> animalSuppliers;
     private final Config config;
 
+    private static EntityFactory instance;
+
+    public static EntityFactory getInstance() {
+        if (instance == null) {
+            instance = new EntityFactory();
+        }
+        return instance;
+    }
+
     public EntityFactory() {
         this.config = Config.getInstance();
         this.animalSuppliers = new HashMap<>();
@@ -38,6 +47,22 @@ public class EntityFactory {
         animalSuppliers.put("bear", () -> createBear());
         animalSuppliers.put("eagle", () -> createEagle());
     }
+
+    public Animal createBabyAnimal(String animalType) {
+        Config.AnimalConfig cfg = config.getConfig().getAnimals().getAnimalConfig(animalType);
+        if (cfg == null) return null;
+
+        return createAnimalWithConfig(animalType, cfg);
+    }
+
+    private Animal createAnimalWithConfig(String animalType, Config.AnimalConfig cfg) {
+        Supplier<Animal> supplier = animalSuppliers.get(animalType.toLowerCase());
+        if (supplier != null) {
+            return supplier.get();
+        }
+        throw new IllegalArgumentException("Unknown animal type: " + animalType);
+    }
+
 
     public Animal createAnimal(String animalType) {
         Supplier<Animal> supplier = animalSuppliers.get(animalType.toLowerCase());

@@ -1,9 +1,9 @@
 package entity;
 
 import config.Config;
+import factory.EntityFactory;
 import logic.Location;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -30,16 +30,6 @@ public abstract class Animal {
         return animalType;
     }
 
-    protected double getHuntProbability() {
-        Config.AnimalConfig cfg = Config.getInstance().getConfig().getAnimals().getAnimalConfig(animalType);
-        return cfg != null ? cfg.getHuntProbability() : 0.0;
-    }
-
-    protected List<String> getPreyTypes() {
-        Config.AnimalConfig cfg = Config.getInstance().getConfig().getAnimals().getAnimalConfig(animalType);
-        return cfg != null ? cfg.getPreyTypes() : new ArrayList<>();
-    }
-
     public double getWeight() {
         return weight;
     }
@@ -56,10 +46,6 @@ public abstract class Animal {
         return foodNeeded;
     }
 
-    public double getCurrentSatiety() {
-        return currentSatiety;
-    }
-
     public boolean isAlive() {
         return isAlive;
     }
@@ -68,28 +54,36 @@ public abstract class Animal {
         return random;
     }
 
-    public void setCurrentSatiety(double satiety) {
-        this.currentSatiety = Math.min(satiety, foodNeeded);
+    protected int getCountInLocation(Location location) {
+        return location.getAnimalCount(getAnimalType());
+    }
+
+    private void setCurrentSatiety(double currentSatiety) {
+        this.currentSatiety = Math.min(currentSatiety, foodNeeded);
+    }
+
+    public int getEatingProbability(Class<? extends Animal> preyClass) {
+        return 0;
     }
 
     public void eat(Location currentLocation) {
-        decreaseSatiety(0.5);
+        if (!isAlive) return;
+
+        decreaseSatiety(Config.getInstance().getConfig().getSimulation().getSatietyDecreasePerTick());
     }
 
     public void move(Location currentLocation,
                      List<Location> adjacentLocations) {
         if (!isAlive || speed == 0) return;
 
-        if (random.nextInt(100) < 30) {
-            if (!adjacentLocations.isEmpty()) {
-                Location targetLocation = adjacentLocations.get(random.nextInt(adjacentLocations.size()));
+        if (random.nextInt(100) < 50 && !adjacentLocations.isEmpty()) {
+            Location targetLocation = adjacentLocations.get(random.nextInt(adjacentLocations.size()));
 
-                int currentCount = currentLocation.getAnimalCount(this.getAnimalType());
-                if (currentLocation != targetLocation &&
-                        targetLocation.getAnimalCount(this.getAnimalType()) < maxCountInCell) {
-                    currentLocation.removeAnimal(this);
+            if (currentLocation != targetLocation &&
+                    targetLocation.getAnimalCount(this.getAnimalType()) < maxCountInCell) {
+                if (currentLocation.removeAnimal(this)) {
                     targetLocation.addAnimal(this);
-                    decreaseSatiety(0.2);
+                    decreaseSatiety(0.1);
                 }
             }
         }
@@ -97,19 +91,46 @@ public abstract class Animal {
 
     public void multiply(Location currentLocation) {
         if (!isAlive) return;
+        Config.ReproductionConfig reprodConfig = Config.getInstance().getConfig().getReproduction();
+        int sameTypeCount = currentLocation.getAnimalCount(this.getAnimalType());
+        if (sameTypeCount >= reprodConfig.getMinAnimalsForReproduction()) {
+            if (random.nextDouble() < reprodConfig.getReproductionProbability() &&
+                    sameTypeCount < maxCountInCell) {
+
+                int maxNewborns = reprodConfig.getMaxNewbornsPerPair();
+                int newborns = Math.min(maxNewborns, maxCountInCell - sameTypeCount);
+
+                decreaseSatiety(0.5);
+            }
+        }
+    }
+
+    public Animal multiplyWithFactory(Location currentLocation, EntityFactory factory) {
+        if (!isAlive) return null;
 
         int sameTypeCount = currentLocation.getAnimalCount(this.getAnimalType());
-        if (sameTypeCount >= 2 && random.nextInt(100) < 15) {
-            if (sameTypeCount < maxCountInCell) {
+        Config.ReproductionConfig reprodConfig = Config.getInstance().getConfig().getReproduction();
+
+        if (sameTypeCount >= reprodConfig.getMinAnimalsForReproduction()) {
+
+            if (random.nextDouble() < reprodConfig.getReproductionProbability() &&
+                    sameTypeCount < maxCountInCell) {
+
                 try {
-                    Animal baby = this.getClass().getDeclaredConstructor().newInstance();
-                    currentLocation.addAnimal(baby);
-                    decreaseSatiety(1.0);
+                    Animal baby = factory.createBabyAnimal(this.getAnimalType());
+                    if (baby != null) {
+                        baby.setCurrentSatiety(baby.getFoodNeededForSaturation() / 2);
+
+                        this.decreaseSatiety(1.0);
+
+                        return baby;
+                    }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    System.err.println("Ошибка создания детеныша " + getAnimalType() + ": " + e.getMessage());
                 }
             }
         }
+        return null;
     }
 
     public void die() {
@@ -117,25 +138,13 @@ public abstract class Animal {
     }
 
     public void decreaseSatiety(double amount) {
-        currentSatiety -= amount;
+        currentSatiety = Math.max(0, currentSatiety - amount);
         if (currentSatiety <= 0) {
             die();
         }
     }
 
-    protected int getCountInLocation(Location location) {
-        return location.getAnimalCount(getAnimalType());
-    }
-
     public void increaseSatiety(double amount) {
         currentSatiety = Math.min(currentSatiety + amount, foodNeeded);
-    }
-
-    public boolean canEat(Eatable food) {
-        return false;
-    }
-
-    public int getEatingProbability(Class<? extends Animal> preyClass) {
-        return 0;
     }
 }

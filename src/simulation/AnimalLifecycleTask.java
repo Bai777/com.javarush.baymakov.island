@@ -25,38 +25,46 @@ public class AnimalLifecycleTask implements Callable<Void> {
 
     @Override
     public Void call() throws Exception {
-        for (int x = startX; x < startX + width && x < island.getWidth(); x++) {
-            for (int y = startY; y < startY + height && y < island.getHeight(); y++) {
-                Location location = island.getLocation(x, y);
-                if (location != null) {
-                    processLocation(location, x, y);
+        try {
+            for (int x = startX; x < startX + width && x < island.getWidth(); x++) {
+                for (int y = startY; y < startY + height && y < island.getHeight(); y++) {
+                    Location location = island.getLocation(x, y);
+                    if (location != null) {
+                        processLocation(location, x, y);
+                    }
                 }
             }
+        }catch (Exception e){
+            System.err.println("Error in AnimalLifecycleTask: " + e.getMessage());
         }
         return null;
     }
 
     private void processLocation(Location location, int x, int y) {
-        List<Animal> animals = location.getAnimalObjects();
+        try {
+            List<Animal> animals = new ArrayList<>(location.getAnimalObjects());
 
-        List<Animal> animalsCopy = new ArrayList<>(animals);
+            for (Animal animal : animals) {
+                if (!animal.isAlive()) continue;
 
-        for (Animal animal : animalsCopy) {
-            if (!animal.isAlive()) continue;
+                animal.eat(location);
 
-            animal.eat(location);
+                if (animal.isAlive()) {
+                    animal.multiply(location);
+                }
 
-            animal.multiply(location);
+                if (animal.isAlive() && animal.getSpeed() > 0) {
+                    List<Location> adjacentLocations = getAdjacentLocations(x, y);
+                    animal.move(location, adjacentLocations);
+                }
 
-            if (animal.isAlive()) {
-                List<Location> adjacentLocations = getAdjacentLocations(x, y);
-                animal.move(location, adjacentLocations);
+                animal.decreaseSatiety(0.1);
             }
 
-            animal.decreaseSatiety(0.1);
+            location.cleanDeadAnimals();
+        }catch (Exception e) {
+            System.err.println("Error processing location [" + x + "," + y + "]: " + e.getMessage());
         }
-
-        location.cleanDeadAnimals();
     }
 
     private List<Location> getAdjacentLocations(int x, int y) {

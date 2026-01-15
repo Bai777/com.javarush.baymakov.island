@@ -11,11 +11,10 @@ public class Location {
     private Map<String, Integer> animals;
     private int plantsCount;
     private List<Animal> animalObjects;
-    private final Config config;
     private final int maxPlantsInCell;
 
     public Location() {
-        this.config = Config.getInstance();
+        Config config = Config.getInstance();
         this.maxPlantsInCell = config.getConfig().getIsland().getMaxPlantsInCell();
         this.animals = new HashMap<>();
         this.plantsCount = 0;
@@ -29,7 +28,7 @@ public class Location {
             int currentCount = animals.getOrDefault(animalType, 0);
             int maxCount = animal.getMaxCountInCell();
 
-            if (currentCount < maxCount) {
+            if (currentCount < maxCount && !animalObjects.contains(animal)) {
                 animals.put(animalType, currentCount + 1);
                 animalObjects.add(animal);
                 return true;
@@ -44,53 +43,14 @@ public class Location {
         lock.lock();
         try {
             String animalType = animal.getAnimalType();
-            int count = animals.getOrDefault(animalType, 0);
-
-            if (count > 0 && animalObjects.remove(animal)) {
-                animals.put(animalType, count - 1);
+            if (animalObjects.remove(animal)) {
+                int count = animals.getOrDefault(animalType, 0);
+                if (count > 0) {
+                    animals.put(animalType, count - 1);
+                }
                 return true;
             }
             return false;
-        } finally {
-            lock.unlock();
-        }
-    }
-
-    public Animal removeAnimal(String animalType) {
-        lock.lock();
-        try {
-            int count = animals.getOrDefault(animalType, 0);
-            if (count > 0) {
-                for (Animal animal : animalObjects) {
-                    if (animal.getAnimalType().equals(animalType)) {
-                        if (animalObjects.remove(animal)) {
-                            animals.put(animalType, count - 1);
-                            return animal;
-                        }
-                    }
-                }
-            }
-            return null;
-        } finally {
-            lock.unlock();
-        }
-    }
-
-    public Animal removeAnimal(Class<? extends Animal> animalClass) {
-        lock.lock();
-        try {
-            String animalType = animalClass.getSimpleName().toLowerCase();
-            return removeAnimal(animalType);
-        } finally {
-            lock.unlock();
-        }
-    }
-
-    public int getAnimalCount(Class<? extends Animal> animalClass) {
-        lock.lock();
-        try {
-            String animalType = animalClass.getSimpleName().toLowerCase();
-            return animals.getOrDefault(animalType, 0);
         } finally {
             lock.unlock();
         }
