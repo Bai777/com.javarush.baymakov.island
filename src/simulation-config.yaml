@@ -78,7 +78,7 @@ animals:
       weight: 0.01
       max_count_in_cell: 1000
       speed: 0
-      food_needed: 0.0
+      food_needed: 0.0001
       icon: "🐛"
 
   predators:
