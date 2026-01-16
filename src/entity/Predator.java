@@ -4,6 +4,7 @@ import config.EatingProbability;
 import factory.EntityFactory;
 import logic.Location;
 
+import java.util.Collections;
 import java.util.List;
 
 public abstract class Predator extends Animal {
@@ -70,13 +71,16 @@ public abstract class Predator extends Animal {
         int sameTypeCount = getCountInLocation(currentLocation);
         if (sameTypeCount >= 2 && getRandom().nextInt(100) < 30) {
             if (sameTypeCount < getMaxCountInCell()) {
-                try {
-                    Animal baby = multiplyWithFactory(currentLocation, EntityFactory.getInstance());
-                    if (baby != null && currentLocation.addAnimal(baby)) {
-                        decreaseSatiety(1.5);
+
+                List<Animal> babies = Collections.singletonList(multiplyWithFactory(currentLocation, EntityFactory.getInstance()));
+                int addedCount = 0;
+                for (Animal baby : babies) {
+                    if (currentLocation.addAnimal(baby)) {
+                        addedCount++;
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
+                }
+                if (addedCount > 0) {
+                    decreaseSatiety(1.5);
                 }
             }
         }

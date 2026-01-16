@@ -3,7 +3,7 @@ import simulation.Scheduler;
 import simulation.Simulation;
 
 public class App {
-    static void main() {
+    static void main(String[] args) {
         System.out.println("\nСИМУЛЯЦИЯ ОСТРОВА");
         System.out.println("=".repeat(40));
 

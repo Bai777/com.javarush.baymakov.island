@@ -59,7 +59,7 @@ public abstract class Animal {
         return location.getAnimalCount(getAnimalType());
     }
 
-    private void setCurrentSatiety(double currentSatiety) {
+    public void setCurrentSatiety(double currentSatiety) {
         this.currentSatiety = Math.min(currentSatiety, foodNeeded);
     }
 
@@ -102,27 +102,26 @@ public abstract class Animal {
             if (random.nextDouble() < reprodConfig.getReproductionProbability() &&
                     sameTypeCount < maxCountInCell) {
 
-                // Сколько детенышей можно родить
                 int maxNewborns = reprodConfig.getMaxNewbornsPerPair();
                 int availableSpace = maxCountInCell - sameTypeCount;
                 int newborns = Math.min(maxNewborns, availableSpace);
 
                 if (newborns > 0) {
-                    // Создаем детенышей
                     for (int i = 0; i < newborns; i++) {
                         try {
                             Animal baby = factory.createBabyAnimal(this.getAnimalType());
                             if (baby != null) {
                                 baby.setCurrentSatiety(baby.getFoodNeededForSaturation() / 2);
                                 babies.add(baby);
-                            }catch(Exception e){
-                                System.err.println("Ошибка создания детеныша " + getAnimalType() + ": " + e.getMessage());
                             }
+                        } catch (Exception e) {
+                            System.err.println("Ошибка создания детеныша " + getAnimalType() + ": " + e.getMessage());
                         }
-                        this.decreaseSatiety(1.0 * newborns);
                     }
+                    this.decreaseSatiety(1.0 * newborns);
                 }
             }
+        }
         return null;
     }
 
@@ -140,4 +139,5 @@ public abstract class Animal {
     public void increaseSatiety(double amount) {
         currentSatiety = Math.min(currentSatiety + amount, foodNeeded);
     }
+
 }

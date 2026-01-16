@@ -76,8 +76,8 @@ public class Config {
     }
 
     public static class IslandConfig {
-        private int width;
-        private int height;
+        public int width;
+        public int height;
 
         @JsonProperty("max_plants_in_cell")
         private int maxPlantsInCell;
@@ -234,7 +234,7 @@ public class Config {
         private double satietyDecreasePerTick;
 
         @JsonProperty("max_simulation_duration_seconds")
-        private int maxSimulationDurationSeconds;
+        public int maxSimulationDurationSeconds;
 
         public int getInitialPlantsCount() {
             return initialPlantsCount;

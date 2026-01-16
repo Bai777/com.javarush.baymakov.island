@@ -17,74 +17,6 @@ public class Simulation {
         this.config = Config.getInstance();
     }
 
-    public void initializeTestLocation() {
-        int centerX = island.getWidth() / 2;
-        int centerY = island.getHeight() / 2;
-
-        Location location = island.getLocation(centerX, centerY);
-
-        addAnimalWithCheck(location, "wolf", "Волк", 2);
-        addAnimalWithCheck(location, "boa", "Удав", 2);
-        addAnimalWithCheck(location, "fox", "Лиса", 3);
-        addAnimalWithCheck(location, "bear", "Медведь", 1);
-        addAnimalWithCheck(location, "eagle", "Орел", 2);
-
-        System.out.println("\nДОБАВЛЕНИЕ ТРАВОЯДНЫХ:");
-        addAnimalWithCheck(location, "horse", "Лошадь", 2);
-        addAnimalWithCheck(location, "deer", "Олень", 2);
-        addAnimalWithCheck(location, "rabbit", "Кролик", 5);
-        addAnimalWithCheck(location, "mouse", "Мышь", 4);
-        addAnimalWithCheck(location, "goat", "Коза", 3);
-        addAnimalWithCheck(location, "sheep", "Овца", 3);
-        addAnimalWithCheck(location, "boar", "Кабан", 5);
-        addAnimalWithCheck(location, "buffalo", "Буйвол", 7);
-        addAnimalWithCheck(location, "duck", "Утка", 3);
-        addAnimalWithCheck(location, "caterpillar", "Гусеница", 8);
-
-        int initialPlantsCount = config.getConfig().getSimulation().getInitialPlantsCount();
-        location.setPlantsCount(initialPlantsCount);
-
-        System.out.println("\nДОБАВЛЕНИЕ РАСТЕНИЙ:");
-        System.out.println("  Добавлено растений: " + initialPlantsCount);
-
-        System.out.println("\n" + "*".repeat(50));
-        System.out.println("ИНИЦИАЛИЗАЦИЯ ЗАВЕРШЕНА!");
-        System.out.println("  Локация: [" + centerX + "," + centerY + "]");
-        System.out.println("  Всего животных: " + location.getAnimalObjects().size());
-        System.out.println("  Растений: " + location.getPlantsCount());
-        System.out.println("*".repeat(50));
-    }
-
-    private void addAnimalWithCheck(Location location, String animalType,
-                                    String animalName, int countToAdd) {
-        Config.AnimalConfig animalConfig = factory.getAnimalConfig(animalType);
-        if (animalConfig == null) {
-            System.out.println("  ОШИБКА: Не найдена конфигурация для " + animalName + " (" + animalType + ")");
-            return;
-        }
-
-        int maxCount = animalConfig.getMaxCountInCell();
-        int currentCount = location.getAnimalCount(animalType);
-
-        int addedCount = 0;
-        for (int i = 0; i < countToAdd; i++) {
-            if (currentCount < maxCount) {
-                Animal animal = factory.createAnimal(animalType);
-                if (animal != null && location.addAnimal(animal)) {
-                    currentCount++;
-                    addedCount++;
-                }
-            } else {
-                System.out.println("  " + animalName + ": достигнут лимит " + maxCount);
-                break;
-            }
-        }
-
-        if (addedCount > 0) {
-            System.out.println("  " + animalName + ": добавлено " + addedCount + "/" + maxCount);
-        }
-    }
-
     public void initializeRandomDistribution(int animalsPerType) {
         Config config = Config.getInstance();
         Config.AnimalsConfig animalsConfig = config.getConfig().getAnimals();
@@ -170,31 +102,45 @@ public class Simulation {
     }
 
     public void initializeCustomDistribution() {
-        System.out.println("\nВыберите режим инициализации:");
-        System.out.println("1. Тестовая локация (все животные в центре)");
-        System.out.println("2. Случайное распределение (по всему острову)");
-        System.out.print("Ваш выбор: ");
+        java.util.Scanner scanner = new java.util.Scanner(System.in);
 
         try {
-            java.util.Scanner scanner = new java.util.Scanner(System.in);
-            int choice = scanner.nextInt();
+            System.out.println("\n=== НАСТРОЙКА СИМУЛЯЦИИ ===");
 
-            switch (choice) {
-                case 1:
-                    initializeTestLocation();
-                    break;
-                case 2:
-                    System.out.print("Введите количество животных каждого типа: ");
-                    int count = scanner.nextInt();
-                    initializeRandomDistribution(count);
-                    break;
-                default:
-                    System.out.println("Неверный выбор. Используется тестовая локация.");
-                    initializeTestLocation();
-            }
+            System.out.print("Введите ширину острова (по умолчанию 100): ");
+            String widthInput = scanner.nextLine();
+            int width = widthInput.isEmpty() ? 100 : Integer.parseInt(widthInput);
+
+            System.out.print("Введите высоту острова (по умолчанию 20): ");
+            String heightInput = scanner.nextLine();
+            int height = heightInput.isEmpty() ? 20 : Integer.parseInt(heightInput);
+
+            Config.getInstance().getConfig().getIsland().width = width;
+            Config.getInstance().getConfig().getIsland().height = height;
+
+            this.island = new Island();
+
+            System.out.print("Введите количество животных каждого типа (по умолчанию 2): ");
+            String countInput = scanner.nextLine();
+            int count = countInput.isEmpty() ? 2 : Integer.parseInt(countInput);
+
+            System.out.print("Введите время симуляции в секундах (по умолчанию 300): ");
+            String timeInput = scanner.nextLine();
+            int simulationTime = timeInput.isEmpty() ? 300 : Integer.parseInt(timeInput);
+            Config.getInstance().getConfig().getSimulation().maxSimulationDurationSeconds = simulationTime;
+
+            System.out.println("\n" + "=".repeat(50));
+            System.out.println("ПАРАМЕТРЫ СИМУЛЯЦИИ:");
+            System.out.println("  Размер острова: " + width + "x" + height);
+            System.out.println("  Животных каждого типа: " + count);
+            System.out.println("  Время симуляции: " + simulationTime + " секунд");
+            System.out.println("=".repeat(50) + "\n");
+
+            initializeRandomDistribution(count);
+
         } catch (Exception e) {
-            System.out.println("Ошибка ввода. Используется тестовая локация.");
-            initializeTestLocation();
+            System.out.println("Ошибка ввода. Используются значения по умолчанию.");
+            initializeRandomDistribution(2);
         }
     }
 }

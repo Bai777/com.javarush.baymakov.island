@@ -7,7 +7,7 @@ import factory.EntityFactory;
 import java.util.*;
 
 public class Island {
-    private Location[][] locations;
+    private final Location[][] locations;
     private final Config config;
     private final Config.IslandConfig islandConfig;
     private final Random random = new Random();
@@ -51,62 +51,71 @@ public class Island {
 
         int totalPlants = 0;
         int totalAnimals = 0;
-        int totalDeadAnimals  = 0;
+        int totalDeadAnimals = 0;
+        int totalLiveAnimals = 0;
 
         for (int x = 0; x < islandConfig.getWidth(); x++) {
             for (int y = 0; y < islandConfig.getHeight(); y++) {
                 Location location = locations[x][y];
-                totalPlants += location.getPlantsCount();
+                if (location != null) {
+                    totalPlants += location.getPlantsCount();
 
-                List<Animal> animals = location.getAnimalObjects();
-                totalAnimals += animals.size();
+                    List<Animal> animals = location.getAnimalObjects();
+                    totalAnimals += animals.size();
 
-                for (Animal animal : animals) {
-                    String animalType = animal.getAnimalType();
-                    if (!animal.isAlive()) {
-                        totalDeadAnimals ++;
-                        deadAnimalCounts.put(animalType, deadAnimalCounts.getOrDefault(animalType, 0) + 1);
-                    }else {
-                        animalCounts.put(animalType, animalCounts.getOrDefault(animalType, 0) + 1);
+                    for (Animal animal : animals) {
+                        if (animal != null) {
+                            String animalType = animal.getAnimalType();
+                            if (!animal.isAlive()) {
+                                totalDeadAnimals++;
+                                deadAnimalCounts.put(animalType, deadAnimalCounts.getOrDefault(animalType, 0) + 1);
+                            } else {
+                                totalLiveAnimals++;
+                                animalCounts.put(animalType, animalCounts.getOrDefault(animalType, 0) + 1);
+                            }
+                        }
                     }
                 }
             }
         }
 
         System.out.println("\n" + "=".repeat(60));
-        System.out.println("СТАТИСТИКА ОСТРОВА");
+        System.out.println("СТАТИСТИКА ОСТРОВА (" + getWidth() + "x" + getHeight() + ")");
         System.out.println("=".repeat(60));
         System.out.println("Общее количество растений: " + totalPlants);
         System.out.println("Общее количество животных: " + totalAnimals +
-                " (живых: " + (totalAnimals - totalDeadAnimals ) +
-                ", мертвых: " + totalDeadAnimals  + ")");
+                " (живых: " + totalLiveAnimals +
+                ", мертвых: " + totalDeadAnimals + ")");
         System.out.println("-".repeat(60));
 
+        System.out.println("УМЕРШИЕ ЖИВОТНЫЕ:");
         if (!deadAnimalCounts.isEmpty()) {
-            System.out.println("-".repeat(70));
-            System.out.println("УМЕРШИЕ ЖИВОТНЫЕ:");
-            for (Map.Entry<String, Integer> entry : deadAnimalCounts.entrySet()) {
-                getEntryKeyAndValue(entry);
-            }
-        }
-
-        if (!animalCounts.isEmpty()) {
-            System.out.println("ЖИВОТНЫЕ ПО ВИДАМ:");
-
-            List<Map.Entry<String, Integer>> sortedEntries = new ArrayList<>(animalCounts.entrySet());
-            sortedEntries.sort((a, b) -> b.getValue().compareTo(a.getValue()));
-
-            for (Map.Entry<String, Integer> entry : sortedEntries) {
-                getEntryKeyAndValue(entry);
-            }
+            sortedDead(deadAnimalCounts);
         } else {
-            System.out.println("Животных нет на острове");
+            System.out.println("  Нет умерших животных");
+        }
+        System.out.println("-".repeat(60));
+
+        System.out.println("ЖИВЫЕ ЖИВОТНЫЕ ПО ВИДАМ:");
+        if (!animalCounts.isEmpty()) {
+            sortedDead(animalCounts);
+        } else {
+            System.out.println("  Нет живых животных");
         }
 
         System.out.println("=".repeat(60));
     }
 
-    private void getEntryKeyAndValue(Map.Entry<String, Integer> entry) {
+    private void sortedDead(Map<String, Integer> deadAnimalCounts) {
+        List<Map.Entry<String, Integer>> sortedDead = new ArrayList<>(deadAnimalCounts.entrySet());
+        sortedDead.sort((a, b) -> b.getValue().compareTo(a.getValue()));
+
+        for (Map.Entry<String, Integer> entry : sortedDead) {
+            animalNameGetKeyAndValue(entry);
+        }
+    }
+
+    private void animalNameGetKeyAndValue(Map.Entry<String, Integer> entry) {
         String animalName = entry.getKey();
         int count = entry.getValue();
         String icon = "❓";

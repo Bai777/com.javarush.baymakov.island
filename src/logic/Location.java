@@ -71,12 +71,15 @@ public class Location {
             Iterator<Animal> iterator = animalObjects.iterator();
             while (iterator.hasNext()) {
                 Animal animal = iterator.next();
-                if (!animal.isAlive()) {
+                if (animal != null && !animal.isAlive()) {
                     iterator.remove();
                     String animalType = animal.getAnimalType();
                     int currentCount = animals.getOrDefault(animalType, 0);
                     if (currentCount > 0) {
                         animals.put(animalType, currentCount - 1);
+                    }
+                    if (animals.getOrDefault(animalType, 0) == 0) {
+                        animals.remove(animalType);
                     }
                 }
             }

@@ -12,14 +12,4 @@ public class Plant implements Eatable {
     public double getWeight() {
         return weight;
     }
-
-//    public double eat(double amount) {
-//        double eaten = Math.min(amount, weight);
-//        weight -= eaten;
-//        return eaten;
-//    }
-
-    public boolean isAlive() {
-        return weight > 0;
-    }
 }
