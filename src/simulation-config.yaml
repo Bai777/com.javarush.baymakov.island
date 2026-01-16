@@ -162,7 +162,7 @@ reproduction:
   max_newborns_per_pair: 3
 
 simulation:
-  initial_plants_count: 100
+  initial_plants_count: 50
   section_size_for_threads: 10
-  satiety_decrease_per_tick: 0.1
+  satiety_decrease_per_tick: 0.5
   max_simulation_duration_seconds: 300

@@ -60,20 +60,26 @@ public abstract class Herbivore extends Animal {
     public void multiply(Location currentLocation) {
         if (!isAlive()) return;
 
+        if (currentSatiety < getFoodNeededForSaturation() * 0.5) {
+            return;
+        }
+
         int sameTypeCount = getCountInLocation(currentLocation);
         if (sameTypeCount >= 2 && getRandom().nextInt(100) < 20) {
             if (sameTypeCount < getMaxCountInCell()) {
 
-                List<Animal> babies = Collections.singletonList(multiplyWithFactory(currentLocation, EntityFactory.getInstance()));
+                List<Animal> babies = multiplyWithFactory(currentLocation, EntityFactory.getInstance());
                 int addedCount = 0;
                 for (Animal baby : babies) {
-                    if (currentLocation.addAnimal(baby)) {
+                    if (baby != null && currentLocation.addAnimal(baby)) {
                         addedCount++;
                     }
                 }
 
                 if (addedCount > 0) {
-                    decreaseSatiety(0.8);
+                    decreaseSatiety(2.0 * addedCount);
+                    //Для отладки
+                    System.out.println("[Размножение] " + getAnimalType() + ": родилось " + addedCount + " детенышей");
                 }
             }
         }

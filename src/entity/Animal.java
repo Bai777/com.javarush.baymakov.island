@@ -59,6 +59,10 @@ public abstract class Animal {
         return location.getAnimalCount(getAnimalType());
     }
 
+    public double getCurrentSatiety() {
+        return currentSatiety;
+    }
+
     public void setCurrentSatiety(double currentSatiety) {
         this.currentSatiety = Math.min(currentSatiety, foodNeeded);
     }
@@ -89,10 +93,10 @@ public abstract class Animal {
     public void multiply(Location currentLocation) {
     }
 
-    public Animal multiplyWithFactory(Location currentLocation, EntityFactory factory) {
+    public List<Animal> multiplyWithFactory(Location currentLocation, EntityFactory factory) {
         List<Animal> babies = new ArrayList<>();
 
-        if (!isAlive) return (Animal) babies;
+        if (!isAlive) return babies;
 
         int sameTypeCount = currentLocation.getAnimalCount(this.getAnimalType());
         Config.ReproductionConfig reprodConfig = Config.getInstance().getConfig().getReproduction();
@@ -118,11 +122,14 @@ public abstract class Animal {
                             System.err.println("Ошибка создания детеныша " + getAnimalType() + ": " + e.getMessage());
                         }
                     }
-                    this.decreaseSatiety(1.0 * newborns);
+
+                    if (!babies.isEmpty()) {
+                        this.decreaseSatiety(1.0 * babies.size());
+                    }
                 }
             }
         }
-        return null;
+        return babies;
     }
 
     public void die() {

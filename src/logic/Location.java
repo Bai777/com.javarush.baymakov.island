@@ -42,11 +42,18 @@ public class Location {
     public boolean removeAnimal(Animal animal) {
         lock.lock();
         try {
+            if (animal == null) {
+                return false;
+            }
+
             String animalType = animal.getAnimalType();
             if (animalObjects.remove(animal)) {
                 int count = animals.getOrDefault(animalType, 0);
                 if (count > 0) {
                     animals.put(animalType, count - 1);
+                }
+                if (animals.getOrDefault(animalType, 0) <= 0) {
+                    animals.remove(animalType);
                 }
                 return true;
             }
@@ -68,25 +75,45 @@ public class Location {
     public void cleanDeadAnimals() {
         lock.lock();
         try {
-            Iterator<Animal> iterator = animalObjects.iterator();
-            while (iterator.hasNext()) {
-                Animal animal = iterator.next();
-                if (animal != null && !animal.isAlive()) {
-                    iterator.remove();
-                    String animalType = animal.getAnimalType();
-                    int currentCount = animals.getOrDefault(animalType, 0);
+            List<Animal> animalsToRemove = new ArrayList<>();
+
+            //Для отладки
+            int deadCount = 0;
+
+            for (Animal animal : animalObjects) {
+                if (animal == null || !animal.isAlive()) {
+                    deadCount++;
+                    animalsToRemove.add(animal);
+                }
+            }
+
+            //Для отладки
+            if (deadCount > 0) {
+                System.out.println("[Отладка] Найдено " + deadCount + " мертвых животных для очистки");
+            }
+
+            for (Animal deadAnimal : animalsToRemove) {
+                if (deadAnimal != null) {
+                    String animalType = deadAnimal.getAnimalType();
+                    animalObjects.remove(deadAnimal);
+
+                    int currentCount = this.animals.getOrDefault(animalType, 0);
                     if (currentCount > 0) {
-                        animals.put(animalType, currentCount - 1);
+                        this.animals.put(animalType, currentCount - 1);
                     }
-                    if (animals.getOrDefault(animalType, 0) == 0) {
-                        animals.remove(animalType);
+
+                    if (this.animals.getOrDefault(animalType, 0) <= 0) {
+                        this.animals.remove(animalType);
                     }
                 }
             }
+            animalObjects.removeIf(Objects::isNull);
+
         } finally {
             lock.unlock();
         }
     }
+
 
     public int getAnimalCount(String animalType) {
         lock.lock();
@@ -135,15 +162,6 @@ public class Location {
         lock.lock();
         try {
             return plantsCount;
-        } finally {
-            lock.unlock();
-        }
-    }
-
-    public void setPlantsCount(int plantsCount) {
-        lock.lock();
-        try {
-            this.plantsCount = Math.min(plantsCount, maxPlantsInCell);
         } finally {
             lock.unlock();
         }

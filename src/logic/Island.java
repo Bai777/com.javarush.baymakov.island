@@ -39,103 +39,115 @@ public class Island {
         for (int x = 0; x < islandConfig.getWidth(); x++) {
             for (int y = 0; y < islandConfig.getHeight(); y++) {
                 Location location = locations[x][y];
-                int growth = random.nextInt(5) + 1;
-                location.addPlants(growth);
+                int currentPlants = location.getPlantsCount();
+                int maxPlants = islandConfig.getMaxPlantsInCell();
+
+                if (currentPlants < maxPlants) {
+                    int availableSpace = maxPlants - currentPlants;
+
+                    double fillRatio = (double) currentPlants / maxPlants;
+                    int growthChance = (int) ((1.0 - fillRatio) * 100);
+
+                    if (random.nextInt(100) < growthChance) {
+                        int growth = random.nextInt(3) + 1;
+                        location.addPlants(Math.min(growth, availableSpace));
+                    }
+                }
             }
         }
     }
 
-    public void printStatistics() {
-        Map<String, Integer> animalCounts = new LinkedHashMap<>();
-        Map<String, Integer> deadAnimalCounts = new LinkedHashMap<>();
+        public void printStatistics () {
+            Map<String, Integer> animalCounts = new LinkedHashMap<>();
+            Map<String, Integer> deadAnimalCounts = new LinkedHashMap<>();
 
-        int totalPlants = 0;
-        int totalAnimals = 0;
-        int totalDeadAnimals = 0;
-        int totalLiveAnimals = 0;
+            int totalPlants = 0;
+            int totalAnimals = 0;
+            int totalDeadAnimals = 0;
+            int totalLiveAnimals = 0;
 
-        for (int x = 0; x < islandConfig.getWidth(); x++) {
-            for (int y = 0; y < islandConfig.getHeight(); y++) {
-                Location location = locations[x][y];
-                if (location != null) {
-                    totalPlants += location.getPlantsCount();
+            for (int x = 0; x < islandConfig.getWidth(); x++) {
+                for (int y = 0; y < islandConfig.getHeight(); y++) {
+                    Location location = locations[x][y];
+                    if (location != null) {
+                        totalPlants += location.getPlantsCount();
 
-                    List<Animal> animals = location.getAnimalObjects();
-                    totalAnimals += animals.size();
+                        List<Animal> animals = location.getAnimalObjects();
+                        totalAnimals += animals.size();
 
-                    for (Animal animal : animals) {
-                        if (animal != null) {
-                            String animalType = animal.getAnimalType();
-                            if (!animal.isAlive()) {
-                                totalDeadAnimals++;
-                                deadAnimalCounts.put(animalType, deadAnimalCounts.getOrDefault(animalType, 0) + 1);
-                            } else {
-                                totalLiveAnimals++;
-                                animalCounts.put(animalType, animalCounts.getOrDefault(animalType, 0) + 1);
+                        for (Animal animal : animals) {
+                            if (animal != null) {
+                                String animalType = animal.getAnimalType();
+                                if (!animal.isAlive()) {
+                                    totalDeadAnimals++;
+                                    deadAnimalCounts.put(animalType, deadAnimalCounts.getOrDefault(animalType, 0) + 1);
+                                } else {
+                                    totalLiveAnimals++;
+                                    animalCounts.put(animalType, animalCounts.getOrDefault(animalType, 0) + 1);
+                                }
                             }
                         }
                     }
                 }
             }
-        }
 
-        System.out.println("\n" + "=".repeat(60));
-        System.out.println("СТАТИСТИКА ОСТРОВА (" + getWidth() + "x" + getHeight() + ")");
-        System.out.println("=".repeat(60));
-        System.out.println("Общее количество растений: " + totalPlants);
-        System.out.println("Общее количество животных: " + totalAnimals +
-                " (живых: " + totalLiveAnimals +
-                ", мертвых: " + totalDeadAnimals + ")");
-        System.out.println("-".repeat(60));
+            System.out.println("\n" + "=".repeat(60));
+            System.out.println("СТАТИСТИКА ОСТРОВА (" + getWidth() + "x" + getHeight() + ")");
+            System.out.println("=".repeat(60));
+            System.out.println("Общее количество растений: " + totalPlants);
+            System.out.println("Общее количество животных: " + totalAnimals +
+                    " (живых: " + totalLiveAnimals +
+                    ", мертвых: " + totalDeadAnimals + ")");
+            System.out.println("-".repeat(60));
 
-        System.out.println("УМЕРШИЕ ЖИВОТНЫЕ:");
-        if (!deadAnimalCounts.isEmpty()) {
-            sortedDead(deadAnimalCounts);
-        } else {
-            System.out.println("  Нет умерших животных");
-        }
-        System.out.println("-".repeat(60));
-
-        System.out.println("ЖИВЫЕ ЖИВОТНЫЕ ПО ВИДАМ:");
-        if (!animalCounts.isEmpty()) {
-            sortedDead(animalCounts);
-        } else {
-            System.out.println("  Нет живых животных");
-        }
-
-        System.out.println("=".repeat(60));
-    }
-
-    private void sortedDead(Map<String, Integer> deadAnimalCounts) {
-        List<Map.Entry<String, Integer>> sortedDead = new ArrayList<>(deadAnimalCounts.entrySet());
-        sortedDead.sort((a, b) -> b.getValue().compareTo(a.getValue()));
-
-        for (Map.Entry<String, Integer> entry : sortedDead) {
-            animalNameGetKeyAndValue(entry);
-        }
-    }
-
-    private void animalNameGetKeyAndValue(Map.Entry<String, Integer> entry) {
-        String animalName = entry.getKey();
-        int count = entry.getValue();
-        String icon = "❓";
-        try {
-            Config.AnimalConfig animalConfig = factory.getAnimalConfig(animalName);
-            if (animalConfig != null && animalConfig.getIcon() != null) {
-                icon = animalConfig.getIcon();
+            System.out.println("УМЕРШИЕ ЖИВОТНЫЕ:");
+            if (!deadAnimalCounts.isEmpty()) {
+                sortedDead(deadAnimalCounts);
+            } else {
+                System.out.println("  Нет умерших животных");
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("-".repeat(60));
+
+            System.out.println("ЖИВЫЕ ЖИВОТНЫЕ ПО ВИДАМ:");
+            if (!animalCounts.isEmpty()) {
+                sortedDead(animalCounts);
+            } else {
+                System.out.println("  Нет живых животных");
+            }
+
+            System.out.println("=".repeat(60));
         }
-        System.out.printf("  %s %-15s: %d%n", icon, animalName, count);
-    }
 
-    public int getWidth() {
-        return islandConfig.getWidth();
-    }
+        private void sortedDead (Map < String, Integer > deadAnimalCounts){
+            List<Map.Entry<String, Integer>> sortedDead = new ArrayList<>(deadAnimalCounts.entrySet());
+            sortedDead.sort((a, b) -> b.getValue().compareTo(a.getValue()));
 
-    public int getHeight() {
-        return islandConfig.getHeight();
+            for (Map.Entry<String, Integer> entry : sortedDead) {
+                animalNameGetKeyAndValue(entry);
+            }
+        }
+
+        private void animalNameGetKeyAndValue (Map.Entry < String, Integer > entry){
+            String animalName = entry.getKey();
+            int count = entry.getValue();
+            String icon = "❓";
+            try {
+                Config.AnimalConfig animalConfig = factory.getAnimalConfig(animalName);
+                if (animalConfig != null && animalConfig.getIcon() != null) {
+                    icon = animalConfig.getIcon();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            System.out.printf("  %s %-15s: %d%n", icon, animalName, count);
+        }
+
+        public int getWidth () {
+            return islandConfig.getWidth();
+        }
+
+        public int getHeight () {
+            return islandConfig.getHeight();
+        }
     }
-}
 

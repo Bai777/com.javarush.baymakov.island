@@ -25,15 +25,21 @@ public abstract class Predator extends Animal {
 
     protected boolean tryEatAnimals(Location location) {
         List<Animal> animals = location.getAnimalObjects();
+        boolean isVeryHungry = currentSatiety < foodNeeded * 0.3;
 
         for (Animal prey : animals) {
-            if (!prey.isAlive() || prey.getAnimalType().equals(getAnimalType())) {
+            if (prey == null || !prey.isAlive() || prey.getAnimalType().equals(getAnimalType())) {
+                continue;
+            }
+
+            if (prey.getWeight() > this.weight * 2) {
                 continue;
             }
 
             int probability = EatingProbability.getProbability(this.getClass(), prey.getClass());
+            int adjustedProbability = isVeryHungry ? Math.min(100, probability + 30) : probability;
 
-            if (probability > 0 && getRandom().nextInt(100) < probability) {
+            if (adjustedProbability > 0 && getRandom().nextInt(100) < adjustedProbability) {
                 if (location.removeAnimal(prey)) {
                     increaseSatiety(prey.getWeight());
                     return true;
@@ -68,19 +74,24 @@ public abstract class Predator extends Animal {
     public void multiply(Location currentLocation) {
         if (!isAlive()) return;
 
+        if (currentSatiety < getFoodNeededForSaturation() * 0.5) {
+            return;
+        }
+
         int sameTypeCount = getCountInLocation(currentLocation);
         if (sameTypeCount >= 2 && getRandom().nextInt(100) < 30) {
             if (sameTypeCount < getMaxCountInCell()) {
-
-                List<Animal> babies = Collections.singletonList(multiplyWithFactory(currentLocation, EntityFactory.getInstance()));
+                List<Animal> babies = multiplyWithFactory(currentLocation, EntityFactory.getInstance());
                 int addedCount = 0;
                 for (Animal baby : babies) {
-                    if (currentLocation.addAnimal(baby)) {
+                    if (baby != null && currentLocation.addAnimal(baby)) {
                         addedCount++;
                     }
                 }
                 if (addedCount > 0) {
-                    decreaseSatiety(1.5);
+                    decreaseSatiety(3.0 * addedCount);
+                    //Для отладки
+                    System.out.println("[Размножение] " + getAnimalType() + ": родилось " + addedCount + " детенышей");
                 }
             }
         }

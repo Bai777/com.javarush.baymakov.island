@@ -49,6 +49,10 @@ public class AnimalLifecycleTask implements Callable<Void> {
 
                 animal.eat(location);
 
+                if (animal.isAlive() && animal.getCurrentSatiety() < animal.getFoodNeededForSaturation() * 0.2) {
+                    animal.decreaseSatiety(0.3);
+                }
+
                 if (animal.isAlive()) {
                     animal.multiply(location);
                 }
@@ -57,8 +61,6 @@ public class AnimalLifecycleTask implements Callable<Void> {
                     List<Location> adjacentLocations = getAdjacentLocations(x, y);
                     animal.move(location, adjacentLocations);
                 }
-
-                animal.decreaseSatiety(0.3);
             }
 
             location.cleanDeadAnimals();
