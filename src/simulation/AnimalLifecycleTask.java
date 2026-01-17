@@ -62,8 +62,6 @@ public class AnimalLifecycleTask implements Callable<Void> {
                     animal.move(location, adjacentLocations);
                 }
             }
-
-            location.cleanDeadAnimals();
         }catch (Exception e) {
             System.err.println("Error processing location [" + x + "," + y + "]: " + e.getMessage());
         }

@@ -38,7 +38,7 @@ public class Scheduler {
         }, 1000, islandConfig.getAnimalLifecycleIntervalMs(), TimeUnit.MILLISECONDS);
 
         scheduledExecutorService.scheduleAtFixedRate(() -> {
-            simulation.getIsland().printStatistics();
+            simulation.getIsland().printStatisticsAndClean();
         }, 2000, islandConfig.getStatisticsIntervalMs(), TimeUnit.MILLISECONDS);
     }
 

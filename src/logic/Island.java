@@ -72,7 +72,7 @@ public class Island {
                     if (location != null) {
                         totalPlants += location.getPlantsCount();
 
-                        List<Animal> animals = location.getAnimalObjects();
+                        List<Animal> animals = location.getAllAnimalsIncludingDead();
                         totalAnimals += animals.size();
 
                         for (Animal animal : animals) {
@@ -102,7 +102,7 @@ public class Island {
 
             System.out.println("УМЕРШИЕ ЖИВОТНЫЕ:");
             if (!deadAnimalCounts.isEmpty()) {
-                sortedDead(deadAnimalCounts);
+                printSortedMap(deadAnimalCounts);
             } else {
                 System.out.println("  Нет умерших животных");
             }
@@ -110,7 +110,7 @@ public class Island {
 
             System.out.println("ЖИВЫЕ ЖИВОТНЫЕ ПО ВИДАМ:");
             if (!animalCounts.isEmpty()) {
-                sortedDead(animalCounts);
+                printSortedMap(animalCounts);
             } else {
                 System.out.println("  Нет живых животных");
             }
@@ -118,16 +118,33 @@ public class Island {
             System.out.println("=".repeat(60));
         }
 
-        private void sortedDead (Map < String, Integer > deadAnimalCounts){
+    public void cleanAllDeadAnimals() {
+        for (int x = 0; x < islandConfig.getWidth(); x++) {
+            for (int y = 0; y < islandConfig.getHeight(); y++) {
+                Location location = locations[x][y];
+                if (location != null) {
+                    location.cleanDeadAnimals();
+                }
+            }
+        }
+    }
+
+    public void printStatisticsAndClean() {
+        printStatistics();
+
+        cleanAllDeadAnimals();
+    }
+
+        private void printSortedMap(Map < String, Integer > deadAnimalCounts){
             List<Map.Entry<String, Integer>> sortedDead = new ArrayList<>(deadAnimalCounts.entrySet());
             sortedDead.sort((a, b) -> b.getValue().compareTo(a.getValue()));
 
             for (Map.Entry<String, Integer> entry : sortedDead) {
-                animalNameGetKeyAndValue(entry);
+                printAnimalEntry(entry);
             }
         }
 
-        private void animalNameGetKeyAndValue (Map.Entry < String, Integer > entry){
+        private void printAnimalEntry(Map.Entry < String, Integer > entry){
             String animalName = entry.getKey();
             int count = entry.getValue();
             String icon = "❓";

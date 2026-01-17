@@ -39,6 +39,15 @@ public class Location {
         }
     }
 
+    public List<Animal> getAllAnimalsIncludingDead() {
+        lock.lock();
+        try {
+            return new ArrayList<>(animalObjects);
+        } finally {
+            lock.unlock();
+        }
+    }
+
     public boolean removeAnimal(Animal animal) {
         lock.lock();
         try {
@@ -64,12 +73,7 @@ public class Location {
     }
 
     public List<Animal> getAnimalObjects() {
-        lock.lock();
-        try {
-            return new ArrayList<>(animalObjects);
-        } finally {
-            lock.unlock();
-        }
+        return getAllAnimalsIncludingDead();
     }
 
     public void cleanDeadAnimals() {
@@ -79,10 +83,13 @@ public class Location {
 
             //Для отладки
             int deadCount = 0;
+            Map<String, Integer> deadByType = new HashMap<>();
 
             for (Animal animal : animalObjects) {
                 if (animal == null || !animal.isAlive()) {
                     deadCount++;
+                    String animalType = animal.getAnimalType();
+                    deadByType.put(animalType, deadByType.getOrDefault(animalType, 0) + 1);
                     animalsToRemove.add(animal);
                 }
             }
@@ -91,6 +98,12 @@ public class Location {
             if (deadCount > 0) {
                 System.out.println("[Отладка] Найдено " + deadCount + " мертвых животных для очистки");
             }
+
+            // Можно добавить детальный вывод по типам:
+            for (Map.Entry<String, Integer> entry : deadByType.entrySet()) {
+                System.out.println("[Отладка]   - " + entry.getKey() + ": " + entry.getValue());
+            }
+
 
             for (Animal deadAnimal : animalsToRemove) {
                 if (deadAnimal != null) {
