@@ -12,4 +12,9 @@ public class Plant implements Eatable {
     public double getWeight() {
         return weight;
     }
+
+    @Override
+    public double getFoodValue() {
+        return weight;
+    }
 }

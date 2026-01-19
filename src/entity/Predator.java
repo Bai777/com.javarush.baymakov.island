@@ -36,9 +36,8 @@ public abstract class Predator extends Animal {
             boolean isCannibalism = prey.getAnimalType().equals(getAnimalType());
 
             if (isCannibalism) {
-                // Проверка на наличие конфига каннибализма
                 if (cannibalismConfig == null) {
-                    continue; // Если нет конфига, пропускаем сородича
+                    continue;
                 }
 
                 double cannibalismProb = cannibalismConfig.getCannibalismProbability();
@@ -46,15 +45,14 @@ public abstract class Predator extends Animal {
                 double maxWeightRatio = cannibalismConfig.getMaxPreyWeightRatio();
 
                 boolean isHungryEnough = (1.0 - (currentSatiety / foodNeeded)) >= minHunger;
-                boolean isPreySmaller = prey.getWeight() < this.weight * maxWeightRatio;
+                boolean isPreySmaller = prey.getFoodValue() < this.weight * maxWeightRatio;
 
                 if (isHungryEnough && isPreySmaller && getRandom().nextDouble() < cannibalismProb) {
                     if (location.removeAnimal(prey)) {
                         double satietyMultiplier = cannibalismConfig.getCannibalismSatietyMultiplier();
-                        double satietyGain = prey.getWeight() * satietyMultiplier;
+                        double satietyGain = prey.getFoodValue() * satietyMultiplier;
                         increaseSatiety(satietyGain);
 
-                        // Условный вывод (не всегда)
                         if (getRandom().nextInt(10) < 3) {
                             System.out.println("[Каннибализм] " + getAnimalType() +
                                     " съел сородича (+" + String.format("%.2f", satietyGain) + " сытости)");
@@ -62,12 +60,10 @@ public abstract class Predator extends Animal {
                         return true;
                     }
                 }
-                // Если каннибализм не удался, пропускаем этого сородича
                 continue;
             }
 
-            // Обычная охота (только НЕ сородичи)
-            if (prey.getWeight() > this.weight * 2) {
+            if (prey.getFoodValue() > this.weight * 2) {
                 continue;
             }
 
@@ -76,7 +72,7 @@ public abstract class Predator extends Animal {
 
             if (adjustedProbability > 0 && getRandom().nextInt(100) < adjustedProbability) {
                 if (location.removeAnimal(prey)) {
-                    increaseSatiety(prey.getWeight());
+                    increaseSatiety(prey.getFoodValue());
                     return true;
                 }
             }

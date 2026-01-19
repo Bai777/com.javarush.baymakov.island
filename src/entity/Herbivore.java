@@ -1,10 +1,11 @@
 package entity;
 
 import config.Config;
+import config.EatingProbability;
+import entity.plants.Plant;
 import factory.EntityFactory;
 import logic.Location;
 
-import java.util.Collections;
 import java.util.List;
 
 public abstract class Herbivore extends Animal {
@@ -19,21 +20,51 @@ public abstract class Herbivore extends Animal {
     public void eat(Location currentLocation) {
         if (!isAlive()) return;
 
-        int plantsCount = currentLocation.getPlantsCount();
-        if (plantsCount > 0) {
-            double maxCanEat = getFoodNeededForSaturation() * 0.3;
-            double actualEat = Math.min(maxCanEat, plantsCount * plantsConfig.getWeight());
+        boolean canEatAnimals = EatingProbability.hasAnimalPrey(this.getClass());
 
-            if (actualEat > 0) {
-                int plantsToRemove = (int) Math.ceil(actualEat / plantsConfig.getWeight());
-                if (currentLocation.removePlants(Math.min(plantsToRemove, plantsCount))) {
-                    increaseSatiety(actualEat);
-                    return;
-                }
+        if (canEatAnimals) {
+            boolean hasEatenAnimal = tryEatAnimals(currentLocation);
+            if (hasEatenAnimal) {
+                return;
+            }
+        }
+
+        List<Plant> plants = currentLocation.getPlants();
+        if (!plants.isEmpty()) {
+            int plantIndex = getRandom().nextInt(plants.size());
+            Plant plant = plants.get(plantIndex);
+            double foodValue = plant.getFoodValue();
+
+            if (currentLocation.removePlants(1)) {
+                increaseSatiety(foodValue);
+                return;
             }
         }
 
         decreaseSatiety(0.3);
+    }
+
+    protected boolean tryEatAnimals(Location location) {
+        if (!EatingProbability.hasAnimalPrey(this.getClass())) {
+            return false;
+        }
+
+        List<Animal> animals = location.getAnimalObjects();
+        for (Animal prey : animals) {
+            if (prey == null || !prey.isAlive() || prey == this) {
+                continue;
+            }
+
+            int probability = EatingProbability.getProbability(this.getClass(), prey.getClass());
+
+            if (probability > 0 && getRandom().nextInt(100) < probability) {
+                if (location.removeAnimal(prey)) {
+                    increaseSatiety(prey.getFoodValue());
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     @Override
@@ -78,7 +109,6 @@ public abstract class Herbivore extends Animal {
 
                 if (addedCount > 0) {
                     decreaseSatiety(2.0 * addedCount);
-                    //Для отладки
                     System.out.println("[Размножение] " + getAnimalType() + ": родилось " + addedCount + " детенышей");
                 }
             }

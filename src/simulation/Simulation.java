@@ -6,6 +6,8 @@ import factory.EntityFactory;
 import logic.Island;
 import logic.Location;
 
+import java.util.Random;
+
 public class Simulation {
     private Island island;
     private EntityFactory factory;
@@ -82,7 +84,7 @@ public class Simulation {
 
         int width = island.getWidth();
         int height = island.getHeight();
-        java.util.Random random = new java.util.Random();
+        Random random = new Random();
 
         for (int i = 0; i < initialPlants; i++) {
             int x = random.nextInt(width);

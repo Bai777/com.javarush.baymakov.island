@@ -2,6 +2,8 @@ package logic;
 
 import config.Config;
 import entity.Animal;
+import entity.plants.Plant;
+import factory.EntityFactory;
 
 import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
@@ -9,16 +11,18 @@ import java.util.concurrent.locks.ReentrantLock;
 public class Location {
     private final ReentrantLock lock = new ReentrantLock();
     private Map<String, Integer> animals;
-    private int plantsCount;
+    private List<Plant> plants;
     private List<Animal> animalObjects;
     private final int maxPlantsInCell;
+    private final EntityFactory factory;
 
     public Location() {
         Config config = Config.getInstance();
         this.maxPlantsInCell = config.getConfig().getIsland().getMaxPlantsInCell();
         this.animals = new HashMap<>();
-        this.plantsCount = 0;
+        this.plants = new ArrayList<>();
         this.animalObjects = new ArrayList<>();
+        this.factory = EntityFactory.getInstance();;
     }
 
     public boolean addAnimal(Animal animal) {
@@ -81,7 +85,6 @@ public class Location {
         try {
             List<Animal> animalsToRemove = new ArrayList<>();
 
-            //Для отладки
             int deadCount = 0;
             Map<String, Integer> deadByType = new HashMap<>();
 
@@ -94,16 +97,9 @@ public class Location {
                 }
             }
 
-            //Для отладки
             if (deadCount > 0) {
                 System.out.println("[Система] Найдено " + deadCount + " мертвых животных");
             }
-
-//            // Можно добавить детальный вывод по типам:
-//            for (Map.Entry<String, Integer> entry : deadByType.entrySet()) {
-//                System.out.println("[Система]   - " + entry.getKey() + ": " + entry.getValue());
-//            }
-
 
             for (Animal deadAnimal : animalsToRemove) {
                 if (deadAnimal != null) {
@@ -146,13 +142,17 @@ public class Location {
         }
     }
 
-    public void addPlants(int count) {
+    public boolean addPlants(int count) {
         lock.lock();
         try {
-            plantsCount += count;
-            if (plantsCount > maxPlantsInCell) {
-                plantsCount = maxPlantsInCell;
+            if (plants.size() + count > maxPlantsInCell) {
+                return false;
             }
+
+            for (int i = 0; i < count; i++) {
+                plants.add(factory.createPlant());
+            }
+            return true;
         } finally {
             lock.unlock();
         }
@@ -161,8 +161,12 @@ public class Location {
     public boolean removePlants(int count) {
         lock.lock();
         try {
-            if (plantsCount >= count) {
-                plantsCount -= count;
+            if (plants.size() >= count) {
+                for (int i = 0; i < count; i++) {
+                    if (!plants.isEmpty()) {
+                        plants.remove(0);
+                    }
+                }
                 return true;
             }
             return false;
@@ -174,7 +178,16 @@ public class Location {
     public int getPlantsCount() {
         lock.lock();
         try {
-            return plantsCount;
+            return plants.size();
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    public List<Plant> getPlants() {
+        lock.lock();
+        try {
+            return new ArrayList<>(plants);
         } finally {
             lock.unlock();
         }

@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public abstract class Animal {
+public abstract class Animal implements Eatable {
     protected final double weight;
     protected final int maxCountInCell;
     protected final int speed;
@@ -31,7 +31,8 @@ public abstract class Animal {
         return animalType;
     }
 
-    public double getWeight() {
+    @Override
+    public double getFoodValue() {
         return weight;
     }
 

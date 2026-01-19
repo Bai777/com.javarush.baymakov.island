@@ -94,10 +94,9 @@ public class EatingProbability {
         return false;
     }
 
-    public static int getPlantEatingProbability(Class<? extends Animal> animalClass) {
-        if (eatsPlants(animalClass)) {
-            return 100;
-        }
-        return 0;
+    public static boolean hasAnimalPrey(Class<? extends Animal> animalClass) {
+        Map<Class<? extends Animal>, Integer> preyMap = probabilityMatrix.get(animalClass);
+        return preyMap != null && !preyMap.isEmpty();
     }
 }
+
