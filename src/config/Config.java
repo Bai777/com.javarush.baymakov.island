@@ -53,6 +53,7 @@ public class Config {
         private AnimalsConfig animals;
         private ReproductionConfig reproduction;
         private SimulationSettings simulation;
+        private CannibalismConfig cannibalism;
 
         public IslandConfig getIsland() {
             return island;
@@ -72,6 +73,10 @@ public class Config {
 
         public SimulationSettings getSimulation() {
             return simulation;
+        }
+
+        public CannibalismConfig getCannibalism() {
+            return cannibalism;
         }
     }
 
@@ -250,6 +255,36 @@ public class Config {
 
         public int getMaxSimulationDurationSeconds() {
             return maxSimulationDurationSeconds;
+        }
+    }
+
+    public static class CannibalismConfig {
+        @JsonProperty("cannibalism_probability")
+        private double cannibalismProbability;
+
+        @JsonProperty("cannibalism_satiety_multiplier")
+        private double cannibalismSatietyMultiplier;
+
+        @JsonProperty("min_hunger_for_cannibalism")
+        private double minHungerForCannibalism;
+
+        @JsonProperty("max_prey_weight_ratio")
+        private double maxPreyWeightRatio;
+
+        public double getCannibalismProbability() {
+            return cannibalismProbability;
+        }
+
+        public double getCannibalismSatietyMultiplier() {
+            return cannibalismSatietyMultiplier;
+        }
+
+        public double getMinHungerForCannibalism() {
+            return minHungerForCannibalism;
+        }
+
+        public double getMaxPreyWeightRatio() {
+            return maxPreyWeightRatio;
         }
     }
 }

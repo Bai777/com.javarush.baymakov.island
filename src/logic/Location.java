@@ -96,13 +96,13 @@ public class Location {
 
             //Для отладки
             if (deadCount > 0) {
-                System.out.println("[Отладка] Найдено " + deadCount + " мертвых животных для очистки");
+                System.out.println("[Система] Найдено " + deadCount + " мертвых животных");
             }
 
-            // Можно добавить детальный вывод по типам:
-            for (Map.Entry<String, Integer> entry : deadByType.entrySet()) {
-                System.out.println("[Отладка]   - " + entry.getKey() + ": " + entry.getValue());
-            }
+//            // Можно добавить детальный вывод по типам:
+//            for (Map.Entry<String, Integer> entry : deadByType.entrySet()) {
+//                System.out.println("[Система]   - " + entry.getKey() + ": " + entry.getValue());
+//            }
 
 
             for (Animal deadAnimal : animalsToRemove) {

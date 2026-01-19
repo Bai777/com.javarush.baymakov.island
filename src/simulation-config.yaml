@@ -161,8 +161,14 @@ reproduction:
   reproduction_probability: 0.3
   max_newborns_per_pair: 3
 
+cannibalism:
+  cannibalism_probability: 0.8
+  cannibalism_satiety_multiplier: 0.7
+  min_hunger_for_cannibalism: 0.3
+  max_prey_weight_ratio: 1.1
+
 simulation:
   initial_plants_count: 50
   section_size_for_threads: 10
-  satiety_decrease_per_tick: 0.5
+  satiety_decrease_per_tick: 2.0
   max_simulation_duration_seconds: 300

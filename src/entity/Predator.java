@@ -1,10 +1,10 @@
 package entity;
 
+import config.Config;
 import config.EatingProbability;
 import factory.EntityFactory;
 import logic.Location;
 
-import java.util.Collections;
 import java.util.List;
 
 public abstract class Predator extends Animal {
@@ -26,12 +26,47 @@ public abstract class Predator extends Animal {
     protected boolean tryEatAnimals(Location location) {
         List<Animal> animals = location.getAnimalObjects();
         boolean isVeryHungry = currentSatiety < foodNeeded * 0.3;
+        Config.CannibalismConfig cannibalismConfig = Config.getInstance().getConfig().getCannibalism();
 
         for (Animal prey : animals) {
-            if (prey == null || !prey.isAlive() || prey.getAnimalType().equals(getAnimalType())) {
+            if (prey == null || !prey.isAlive()) {
                 continue;
             }
 
+            boolean isCannibalism = prey.getAnimalType().equals(getAnimalType());
+
+            if (isCannibalism) {
+                // Проверка на наличие конфига каннибализма
+                if (cannibalismConfig == null) {
+                    continue; // Если нет конфига, пропускаем сородича
+                }
+
+                double cannibalismProb = cannibalismConfig.getCannibalismProbability();
+                double minHunger = cannibalismConfig.getMinHungerForCannibalism();
+                double maxWeightRatio = cannibalismConfig.getMaxPreyWeightRatio();
+
+                boolean isHungryEnough = (1.0 - (currentSatiety / foodNeeded)) >= minHunger;
+                boolean isPreySmaller = prey.getWeight() < this.weight * maxWeightRatio;
+
+                if (isHungryEnough && isPreySmaller && getRandom().nextDouble() < cannibalismProb) {
+                    if (location.removeAnimal(prey)) {
+                        double satietyMultiplier = cannibalismConfig.getCannibalismSatietyMultiplier();
+                        double satietyGain = prey.getWeight() * satietyMultiplier;
+                        increaseSatiety(satietyGain);
+
+                        // Условный вывод (не всегда)
+                        if (getRandom().nextInt(10) < 3) {
+                            System.out.println("[Каннибализм] " + getAnimalType() +
+                                    " съел сородича (+" + String.format("%.2f", satietyGain) + " сытости)");
+                        }
+                        return true;
+                    }
+                }
+                // Если каннибализм не удался, пропускаем этого сородича
+                continue;
+            }
+
+            // Обычная охота (только НЕ сородичи)
             if (prey.getWeight() > this.weight * 2) {
                 continue;
             }
@@ -90,7 +125,6 @@ public abstract class Predator extends Animal {
                 }
                 if (addedCount > 0) {
                     decreaseSatiety(3.0 * addedCount);
-                    //Для отладки
                     System.out.println("[Размножение] " + getAnimalType() + ": родилось " + addedCount + " детенышей");
                 }
             }
