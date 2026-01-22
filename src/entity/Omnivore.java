@@ -44,11 +44,12 @@ public abstract class Omnivore extends Animal {
                 continue;
             }
 
-            int probability = EatingProbability.getProbability(this.getClass(), prey.getClass());
+            Integer probability = EatingProbability.getProbability(this.getClass(), prey.getClass());
 
             if (probability > 0 && getRandom().nextInt(100) < probability) {
                 if (location.removeAnimal(prey)) {
                     increaseSatiety(prey.getFoodValue());
+                    prey.die();
                     return true;
                 }
             }

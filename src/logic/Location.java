@@ -6,7 +6,10 @@ import entity.Animal;
 import entity.plants.Plant;
 import factory.EntityFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class Location {
@@ -16,14 +19,20 @@ public class Location {
     private final List<Animal> animalObjects;
     private final int maxPlantsInCell;
     private final EntityFactory factory;
+    private final Island island;
 
-    public Location() {
+    public Location(Island island) {
         Config config = Config.getInstance();
         this.maxPlantsInCell = config.getConfig().getIsland().getMaxPlantsInCell();
         this.animals = new HashMap<>();
         this.plants = new ArrayList<>();
         this.animalObjects = new ArrayList<>();
         this.factory = EntityFactory.getInstance();
+        this.island = island;
+    }
+
+    public Island getIsland() {
+        return island;
     }
 
     public boolean addAnimal(Animal animal) {
@@ -36,6 +45,7 @@ public class Location {
             if (currentCount < maxCount && !animalObjects.contains(animal)) {
                 animals.put(animalType, currentCount + Constants.ForLocation.increventValue);
                 animalObjects.add(animal);
+                animal.setCurrentLocation(this);
                 return true;
             }
             return false;
@@ -85,20 +95,10 @@ public class Location {
         try {
             List<Animal> animalsToRemove = new ArrayList<>();
 
-            Integer deadCount = 0;
-            Map<String, Integer> deadByType = new HashMap<>();
-
             for (Animal animal : animalObjects) {
                 if (animal == null || !animal.isAlive()) {
-                    deadCount++;
-                    String animalType = animal.getAnimalType();
-                    deadByType.put(animalType, deadByType.getOrDefault(animalType, 0) + 1);
                     animalsToRemove.add(animal);
                 }
-            }
-
-            if (deadCount > 0) {
-                System.out.println("[Система] Найдено " + deadCount + " мертвых животных");
             }
 
             for (Animal deadAnimal : animalsToRemove) {
@@ -116,8 +116,6 @@ public class Location {
                     }
                 }
             }
-            animalObjects.removeIf(Objects::isNull);
-
         } finally {
             lock.unlock();
         }

@@ -12,7 +12,7 @@ public class Scheduler {
     private final ScheduledExecutorService scheduledExecutorService;
     private final ExecutorService animalLifecycleExecutor;
     private final Simulation simulation;
-    private int threadPoolSize;
+    private final int threadPoolSize;
     private final Config config;
 
 
@@ -31,7 +31,6 @@ public class Scheduler {
 
         scheduledExecutorService.scheduleAtFixedRate(() -> {
             simulation.getIsland().growPlants();
-            System.out.println(Constants.ForScheduler.messageFromSystem);
         }, 0, islandConfig.getPlantGrowthIntervalMs(), TimeUnit.MILLISECONDS);
 
         scheduledExecutorService.scheduleAtFixedRate(() -> {

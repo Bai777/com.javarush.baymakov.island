@@ -52,9 +52,10 @@ public abstract class Predator extends Animal {
                         double satietyGain = prey.getFoodValue() * satietyMultiplier;
                         increaseSatiety(satietyGain);
 
+                        prey.die();
+
                         if (getRandom().nextInt(10) < Constants.ForPredator.probabilityOfConsoleOutput) {
-                            System.out.println("[Каннибализм] " + getAnimalType() +
-                                    " съел сородича (+" + String.format("%.2f", satietyGain) + " сытости)");
+                            location.getIsland().addCannibalismEvent(getAnimalType(), satietyGain);
                         }
                         return true;
                     }
@@ -72,6 +73,7 @@ public abstract class Predator extends Animal {
             if (adjustedProbability > 0 && getRandom().nextInt(100) < adjustedProbability) {
                 if (location.removeAnimal(prey)) {
                     increaseSatiety(prey.getFoodValue());
+                    prey.die();
                     return true;
                 }
             }

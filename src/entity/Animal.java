@@ -19,6 +19,7 @@ public abstract class Animal implements Eatable {
     protected boolean isAlive = true;
     protected final String animalType;
     private final Random random = new Random();
+    protected Location currentLocation;
 
     protected Animal(String animalType, double weight, int maxCountInCell, int speed, double foodNeeded) {
         this.animalType = animalType;
@@ -68,6 +69,10 @@ public abstract class Animal implements Eatable {
 
     public void setCurrentSatiety(double currentSatiety) {
         this.currentSatiety = Math.min(currentSatiety, foodNeeded);
+    }
+
+    public void setCurrentLocation(Location location) {
+        this.currentLocation = location;
     }
 
     public void eat(Location currentLocation) {
@@ -152,8 +157,9 @@ public abstract class Animal implements Eatable {
 
                 if (addedCount > 0) {
                     decreaseSatiety(satietyDecreasePerBaby * addedCount);
-                    System.out.println("[Размножение] " + getAnimalType() +
-                            ": родилось " + addedCount + " детенышей");
+                    if (currentLocation != null && currentLocation.getIsland() != null) {
+                        currentLocation.getIsland().addReproductionEvent(getAnimalType(), addedCount);
+                    }
                 }
             }
         }
@@ -203,6 +209,9 @@ public abstract class Animal implements Eatable {
 
     public void die() {
         this.isAlive = false;
+        if (currentLocation != null && currentLocation.getIsland() != null) {
+            currentLocation.getIsland().addDeadAnimal(this.animalType);
+        }
     }
 
     public void decreaseSatiety(double amount) {

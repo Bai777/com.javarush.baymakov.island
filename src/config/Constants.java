@@ -50,8 +50,8 @@ public interface Constants {
         String statistic = "СТАТИСТИКА ОСТРОВА ";
         String totalNumberOfPlants = "Общее количество растений: ";
         String totalNumberOfAnimals = "Общее количество животных: ";
-        String dieAnimals = "УМЕРШИЕ ЖИВОТНЫЕ:";
-        String notDieAnimals = "  Нет умерших животных";
+        String dieAnimalsLastPeriod = "УМЕРШИЕ ЗА ПОСЛЕДНИЙ ПЕРИОД(в том числе съедены):";
+        String notDieAnimalsLastPeriod = "  Нет умерших за последний период";
         String liveAnimals = "ЖИВЫЕ ЖИВОТНЫЕ ПО ВИДАМ:";
         String notLiveAnimals = "  Нет живых животных";
         String error = "Ошибка: ";
@@ -78,7 +78,6 @@ public interface Constants {
     interface ForScheduler {
         Integer CORE_POOL_SIZE = 3;
         String title = "\nСимуляция запущена...\n";
-        String messageFromSystem = "[Система] Растения выросли на всех локациях";
     }
 
     interface ForSimulation {
