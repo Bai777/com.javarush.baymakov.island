@@ -9,11 +9,11 @@ import java.util.List;
 import java.util.concurrent.*;
 
 public class Scheduler {
-    private ScheduledExecutorService scheduledExecutorService;
-    private ExecutorService animalLifecycleExecutor;
-    private Simulation simulation;
+    private final ScheduledExecutorService scheduledExecutorService;
+    private final ExecutorService animalLifecycleExecutor;
+    private final Simulation simulation;
     private int threadPoolSize;
-    private Config config;
+    private final Config config;
 
 
     public Scheduler(Simulation simulation) {

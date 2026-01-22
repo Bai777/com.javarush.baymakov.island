@@ -11,9 +11,9 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class Location {
     private final ReentrantLock lock = new ReentrantLock();
-    private Map<String, Integer> animals;
-    private List<Plant> plants;
-    private List<Animal> animalObjects;
+    private final Map<String, Integer> animals;
+    private final List<Plant> plants;
+    private final List<Animal> animalObjects;
     private final int maxPlantsInCell;
     private final EntityFactory factory;
 

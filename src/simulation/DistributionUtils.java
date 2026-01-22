@@ -1,20 +1,15 @@
 package simulation;
 
 import entity.Animal;
-import entity.plants.Plant;
 import factory.EntityFactory;
 import logic.Island;
 import logic.Location;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-
 public class DistributionUtils {
-    private static final Random RANDOM = new Random();
     private static final EntityFactory FACTORY = EntityFactory.getInstance();
 
-    private DistributionUtils() {}
+    private DistributionUtils() {
+    }
 
     public static int distributeEntities(Island island, int totalCount, int maxPerCell) {
         return distributePlantsWithDensity(island, totalCount, maxPerCell);

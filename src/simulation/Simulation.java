@@ -10,8 +10,8 @@ import java.util.Scanner;
 
 public class Simulation {
     private Island island;
-    private EntityFactory factory;
-    private Config config;
+    private final EntityFactory factory;
+    private final Config config;
     Random random;
 
     public Simulation() {
@@ -61,7 +61,7 @@ public class Simulation {
         initializePlants();
 
         System.out.println("-".repeat(Constants.ForSimulation.repeat));
-        System.out.println("Итого добавлено: " + totalAnimalsAdded + " животных");
+        System.out.println(Constants.ForSimulation.totalMessage + totalAnimalsAdded + " животных");
         System.out.println("=".repeat(Constants.ForSimulation.repeat));
     }
 
@@ -90,15 +90,19 @@ public class Simulation {
         Scanner scanner = new Scanner(System.in);
 
         try {
-            System.out.println("\n=== НАСТРОЙКА СИМУЛЯЦИИ ===");
+            System.out.println(Constants.ForSimulation.settingsTitle);
 
             int width = getValidIntegerInput(scanner,
-                    "Введите ширину острова (по умолчанию 100): ",
-                    100, 1, 1000);
+                    Constants.ForSimulation.promptWidth,
+                    Constants.ForSimulation.defaultValueWidth,
+                    Constants.ForSimulation.minValueWidth,
+                    Constants.ForSimulation.maxValueWidth);
 
             int height = getValidIntegerInput(scanner,
-                    "Введите высоту острова (по умолчанию 20): ",
-                    20, 1, 1000);
+                    Constants.ForSimulation.promptHeight,
+                    Constants.ForSimulation.defaultValueHeight,
+                    Constants.ForSimulation.minValueHeight,
+                    Constants.ForSimulation.maxValueHeight);
 
             config.getConfig().getIsland().width = width;
             config.getConfig().getIsland().height = height;
@@ -106,37 +110,41 @@ public class Simulation {
             this.island = new Island();
 
             int animalsPerType = getValidIntegerInput(scanner,
-                    "Введите количество животных каждого типа (по умолчанию 2): ",
-                    2, 2, 1000);
+                    Constants.ForSimulation.promptAnimalsPerType,
+                    Constants.ForSimulation.defaultValueAnimalsPerType,
+                    Constants.ForSimulation.minValueAnimalsPerType,
+                    Constants.ForSimulation.maxValueAnimalsPerType);
 
             int simulationTime = getValidIntegerInput(scanner,
-                    "Введите время симуляции в секундах (по умолчанию 300): ",
-                    300, 1, 86400);
+                    Constants.ForSimulation.promptSimulationTime,
+                    Constants.ForSimulation.defaultValueSimulationTime,
+                    Constants.ForSimulation.minValueSimulationTime,
+                    Constants.ForSimulation.maxValueSimulationTime);
             Config.getInstance().getConfig().getSimulation().maxSimulationDurationSeconds = simulationTime;
 
-            System.out.println("\n" + "=".repeat(50));
-            System.out.println("ПАРАМЕТРЫ СИМУЛЯЦИИ:");
-            System.out.println("  Размер острова: " + width + "x" + height);
-            System.out.println("  Животных каждого типа: " + animalsPerType);
-            System.out.println("  Время симуляции: " + simulationTime + " секунд");
-            System.out.println("=".repeat(50) + "\n");
+            System.out.println("\n" + "=".repeat(Constants.ForSimulation.repeat));
+            System.out.println(Constants.ForSimulation.parametrSimulationTitle);
+            System.out.println(Constants.ForSimulation.sizeIslandTitle + width + "x" + height);
+            System.out.println(Constants.ForSimulation.animalsTypeTitle + animalsPerType);
+            System.out.println(Constants.ForSimulation.timeSimulationTitle + simulationTime + " секунд");
+            System.out.println("=".repeat(Constants.ForSimulation.repeat) + "\n");
 
             if (animalsPerType > 0) {
                 initializeRandomDistribution(animalsPerType);
             } else {
-                System.out.println("Животные не добавлены (количество = 0)");
+                System.out.println(Constants.ForSimulation.animalsMessage);
                 initializePlants();
             }
 
         } catch (Exception e) {
-            System.err.println("Критическая ошибка инициализации: " + e.getMessage());
-            e.printStackTrace();
-            System.out.println("Используются значения по умолчанию.");
+            System.err.println(Constants.ForSimulation.criticErrorMessage + e.getMessage());
 
-            config.getConfig().getIsland().width = 100;
-            config.getConfig().getIsland().height = 20;
+            System.out.println(Constants.ForSimulation.defaultMessageSettings);
+
+            config.getConfig().getIsland().width = Constants.ForSimulation.defaultValueWidth;
+            config.getConfig().getIsland().height = Constants.ForSimulation.defaultValueHeight;
             this.island = new Island();
-            initializeRandomDistribution(2);
+            initializeRandomDistribution(Constants.ForSimulation.defaultValueAnimalsPerType);
 
         } finally {
             scanner.close();
@@ -155,19 +163,19 @@ public class Simulation {
             try {
                 int value = Integer.parseInt(input);
                 if (value < minValue) {
-                    System.out.println("Ошибка: значение должно быть не меньше " + minValue + "!");
+                    System.out.println(Constants.ForSimulation.errorInputMinValue + minValue + "!");
                     continue;
                 }
 
                 if (value > maxValue) {
-                    System.out.println("Ошибка: значение должно быть не больше " + maxValue + "!");
+                    System.out.println(Constants.ForSimulation.errorInputMaxValue + maxValue + "!");
                     continue;
                 }
 
                 return value;
 
             } catch (NumberFormatException e) {
-                System.out.println("Ошибка: введите корректное целое число!");
+                System.out.println(Constants.ForSimulation.errorInputValue);
             }
         }
     }

@@ -66,6 +66,7 @@ public interface Constants {
         Integer repeat = 60;
         String title = "\nСИМУЛЯЦИЯ ОСТРОВА";
         String titleEnd = "\nСимуляция завершена!";
+        String error = "Ошибка: ";
     }
 
     interface ForAnimalLifecycleTask {
@@ -85,5 +86,37 @@ public interface Constants {
         String title = "СЛУЧАЙНОЕ РАСПРЕДЕЛЕНИЕ ЖИВОТНЫХ";
         String message = "  Растений: не требуется";
         String plantDistributionReport = "  Растений: распределено ";
+        String totalMessage = "Итого добавлено: ";
+        String settingsTitle = "\n=== НАСТРОЙКА СИМУЛЯЦИИ ===";
+        String promptWidth = "Введите ширину острова (по умолчанию 100): ";
+        Integer defaultValueWidth = 100;
+        Integer minValueWidth = 1;
+        Integer maxValueWidth = 1000;
+
+        String promptHeight = "Введите высоту острова (по умолчанию 20): ";
+        Integer defaultValueHeight = 20;
+        Integer minValueHeight = 1;
+        Integer maxValueHeight = 1000;
+
+        String promptAnimalsPerType = "Введите количество животных каждого типа (по умолчанию 2): ";
+        Integer defaultValueAnimalsPerType = 2;
+        Integer minValueAnimalsPerType = 2;
+        Integer maxValueAnimalsPerType = 1000;
+
+        String promptSimulationTime = "Введите время симуляции в секундах (по умолчанию 300): ";
+        Integer defaultValueSimulationTime = 300;
+        Integer minValueSimulationTime = 1;
+        Integer maxValueSimulationTime = 86400;
+
+        String parametrSimulationTitle = "ПАРАМЕТРЫ СИМУЛЯЦИИ:";
+        String sizeIslandTitle = "  Размер острова: ";
+        String animalsTypeTitle = "  Животных каждого типа: ";
+        String timeSimulationTitle = "  Время симуляции: ";
+        String animalsMessage = "Животные не добавлены (количество = 0)";
+        String criticErrorMessage = "Критическая ошибка инициализации: ";
+        String defaultMessageSettings = "Используются значения по умолчанию.";
+        String errorInputMinValue = "Ошибка: значение должно быть не меньше ";
+        String errorInputMaxValue = "Ошибка: значение должно быть не больше ";
+        String errorInputValue = "Ошибка: введите корректное целое число!";
     }
 }

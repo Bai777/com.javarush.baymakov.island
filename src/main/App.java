@@ -6,7 +6,7 @@ import simulation.Scheduler;
 import simulation.Simulation;
 
 public class App {
-    static void main(String[] args) {
+    static void main() {
         System.out.println(Constants.ForApp.title);
         System.out.println("=".repeat(Constants.ForApp.repeat));
 
@@ -22,7 +22,7 @@ public class App {
         try {
             Thread.sleep(simulationDurationSeconds * 1000L);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            System.out.println(Constants.ForApp.error + e.getMessage());
         }
 
         scheduler.stop();
