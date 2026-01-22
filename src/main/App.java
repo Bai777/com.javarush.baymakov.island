@@ -1,16 +1,17 @@
+package main;
+
 import config.Config;
+import config.Constants;
 import simulation.Scheduler;
 import simulation.Simulation;
 
 public class App {
     static void main(String[] args) {
-        System.out.println("\nСИМУЛЯЦИЯ ОСТРОВА");
-        System.out.println("=".repeat(40));
+        System.out.println(Constants.ForApp.title);
+        System.out.println("=".repeat(Constants.ForApp.repeat));
 
         Config config = Config.getInstance();
-
         Simulation simulation = new Simulation();
-
         simulation.initializeCustomDistribution();
 
         Scheduler scheduler = new Scheduler(simulation);
@@ -26,7 +27,7 @@ public class App {
 
         scheduler.stop();
 
-        System.out.println("\nСимуляция завершена!");
+        System.out.println(Constants.ForApp.titleEnd);
         simulation.getIsland().printStatistics();
     }
 }

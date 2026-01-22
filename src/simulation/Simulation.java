@@ -1,102 +1,85 @@
 package simulation;
 
 import config.Config;
-import entity.Animal;
+import config.Constants;
 import factory.EntityFactory;
 import logic.Island;
-import logic.Location;
 
 import java.util.Random;
+import java.util.Scanner;
 
 public class Simulation {
     private Island island;
     private EntityFactory factory;
     private Config config;
+    Random random;
 
     public Simulation() {
         this.island = new Island();
         this.factory = new EntityFactory();
         this.config = Config.getInstance();
+        this.random = new Random();
     }
 
     public void initializeRandomDistribution(int animalsPerType) {
-        Config config = Config.getInstance();
         Config.AnimalsConfig animalsConfig = config.getConfig().getAnimals();
 
-        System.out.println("\n" + "=".repeat(50));
-        System.out.println("СЛУЧАЙНОЕ РАСПРЕДЕЛЕНИЕ ЖИВОТНЫХ");
-        System.out.println("=".repeat(50));
+        System.out.println("\n" + "=".repeat(Constants.ForSimulation.repeat));
+        System.out.println(Constants.ForSimulation.title);
+        System.out.println("=".repeat(Constants.ForSimulation.repeat));
 
-        int totalAnimalsAdded = 0;
+        Integer totalAnimalsAdded = 0;
 
         for (String herbivoreType : animalsConfig.getHerbivores().keySet()) {
-            int added = distributeAnimalsRandomly(herbivoreType, animalsPerType);
+            Config.AnimalConfig animalConfig = factory.getAnimalConfig(herbivoreType);
+            if (animalConfig == null) continue;
+
+            Integer added = DistributionUtils.distributeAnimalsSmart(
+                    island,
+                    herbivoreType,
+                    animalsPerType,
+                    animalConfig.getMaxCountInCell()
+            );
             totalAnimalsAdded += added;
-            System.out.println("  " + herbivoreType + ": " + added + " животных");
+            System.out.printf("  %-15s: %d животных%n", herbivoreType, added);
         }
 
         for (String predatorType : animalsConfig.getPredators().keySet()) {
-            int added = distributeAnimalsRandomly(predatorType, animalsPerType);
+            Config.AnimalConfig animalConfig = factory.getAnimalConfig(predatorType);
+            if (animalConfig == null) continue;
+
+            Integer added = DistributionUtils.distributeAnimalsSmart(
+                    island,
+                    predatorType,
+                    animalsPerType,
+                    animalConfig.getMaxCountInCell()
+            );
             totalAnimalsAdded += added;
-            System.out.println("  " + predatorType + ": " + added + " животных");
+            System.out.printf("  %-15s: %d животных%n", predatorType, added);
         }
 
         initializePlants();
 
-        System.out.println("-".repeat(50));
+        System.out.println("-".repeat(Constants.ForSimulation.repeat));
         System.out.println("Итого добавлено: " + totalAnimalsAdded + " животных");
-        System.out.println("=".repeat(50));
-    }
-
-    private int distributeAnimalsRandomly(String animalType, int count) {
-        Config config = Config.getInstance();
-        Config.AnimalConfig animalConfig = factory.getAnimalConfig(animalType);
-        if (animalConfig == null) return 0;
-
-        int added = 0;
-        int width = island.getWidth();
-        int height = island.getHeight();
-        java.util.Random random = new java.util.Random();
-
-        for (int i = 0; i < count; i++) {
-            int x = random.nextInt(width);
-            int y = random.nextInt(height);
-
-            Location location = island.getLocation(x, y);
-            if (location != null) {
-                int currentCount = location.getAnimalCount(animalType);
-                if (currentCount < animalConfig.getMaxCountInCell()) {
-                    Animal animal = factory.createAnimal(animalType);
-                    if (animal != null && location.addAnimal(animal)) {
-                        added++;
-                    }
-                }
-            }
-        }
-
-        return added;
+        System.out.println("=".repeat(Constants.ForSimulation.repeat));
     }
 
     private void initializePlants() {
-        Config config = Config.getInstance();
         Config.SimulationSettings simSettings = config.getConfig().getSimulation();
         int initialPlants = simSettings.getInitialPlantsCount();
 
-        int width = island.getWidth();
-        int height = island.getHeight();
-        Random random = new Random();
-
-        for (int i = 0; i < initialPlants; i++) {
-            int x = random.nextInt(width);
-            int y = random.nextInt(height);
-
-            Location location = island.getLocation(x, y);
-            if (location != null) {
-                location.addPlants(1);
-            }
+        if (initialPlants <= 0) {
+            System.out.println(Constants.ForSimulation.message);
+            return;
         }
 
-        System.out.println("  Растений: распределено " + initialPlants + " по всему острову");
+        int maxPlantsPerCell = config.getConfig().getIsland().getMaxPlantsInCell();
+        int added = DistributionUtils.distributeEntities(
+                island, initialPlants, maxPlantsPerCell
+        );
+
+        System.out.println(Constants.ForSimulation.plantDistributionReport + added + " из " + initialPlants);
     }
 
     public Island getIsland() {
@@ -104,45 +87,88 @@ public class Simulation {
     }
 
     public void initializeCustomDistribution() {
-        java.util.Scanner scanner = new java.util.Scanner(System.in);
+        Scanner scanner = new Scanner(System.in);
 
         try {
             System.out.println("\n=== НАСТРОЙКА СИМУЛЯЦИИ ===");
 
-            System.out.print("Введите ширину острова (по умолчанию 100): ");
-            String widthInput = scanner.nextLine();
-            int width = widthInput.isEmpty() ? 100 : Integer.parseInt(widthInput);
+            int width = getValidIntegerInput(scanner,
+                    "Введите ширину острова (по умолчанию 100): ",
+                    100, 1, 1000);
 
-            System.out.print("Введите высоту острова (по умолчанию 20): ");
-            String heightInput = scanner.nextLine();
-            int height = heightInput.isEmpty() ? 20 : Integer.parseInt(heightInput);
+            int height = getValidIntegerInput(scanner,
+                    "Введите высоту острова (по умолчанию 20): ",
+                    20, 1, 1000);
 
-            Config.getInstance().getConfig().getIsland().width = width;
-            Config.getInstance().getConfig().getIsland().height = height;
+            config.getConfig().getIsland().width = width;
+            config.getConfig().getIsland().height = height;
 
             this.island = new Island();
 
-            System.out.print("Введите количество животных каждого типа (по умолчанию 2): ");
-            String countInput = scanner.nextLine();
-            int count = countInput.isEmpty() ? 2 : Integer.parseInt(countInput);
+            int animalsPerType = getValidIntegerInput(scanner,
+                    "Введите количество животных каждого типа (по умолчанию 2): ",
+                    2, 2, 1000);
 
-            System.out.print("Введите время симуляции в секундах (по умолчанию 300): ");
-            String timeInput = scanner.nextLine();
-            int simulationTime = timeInput.isEmpty() ? 300 : Integer.parseInt(timeInput);
+            int simulationTime = getValidIntegerInput(scanner,
+                    "Введите время симуляции в секундах (по умолчанию 300): ",
+                    300, 1, 86400);
             Config.getInstance().getConfig().getSimulation().maxSimulationDurationSeconds = simulationTime;
 
             System.out.println("\n" + "=".repeat(50));
             System.out.println("ПАРАМЕТРЫ СИМУЛЯЦИИ:");
             System.out.println("  Размер острова: " + width + "x" + height);
-            System.out.println("  Животных каждого типа: " + count);
+            System.out.println("  Животных каждого типа: " + animalsPerType);
             System.out.println("  Время симуляции: " + simulationTime + " секунд");
             System.out.println("=".repeat(50) + "\n");
 
-            initializeRandomDistribution(count);
+            if (animalsPerType > 0) {
+                initializeRandomDistribution(animalsPerType);
+            } else {
+                System.out.println("Животные не добавлены (количество = 0)");
+                initializePlants();
+            }
 
         } catch (Exception e) {
-            System.out.println("Ошибка ввода. Используются значения по умолчанию.");
+            System.err.println("Критическая ошибка инициализации: " + e.getMessage());
+            e.printStackTrace();
+            System.out.println("Используются значения по умолчанию.");
+
+            config.getConfig().getIsland().width = 100;
+            config.getConfig().getIsland().height = 20;
+            this.island = new Island();
             initializeRandomDistribution(2);
+
+        } finally {
+            scanner.close();
+        }
+    }
+
+    private int getValidIntegerInput(Scanner scanner, String prompt, int defaultValue, int minValue, int maxValue) {
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine().trim();
+
+            if (input.isEmpty()) {
+                return defaultValue;
+            }
+
+            try {
+                int value = Integer.parseInt(input);
+                if (value < minValue) {
+                    System.out.println("Ошибка: значение должно быть не меньше " + minValue + "!");
+                    continue;
+                }
+
+                if (value > maxValue) {
+                    System.out.println("Ошибка: значение должно быть не больше " + maxValue + "!");
+                    continue;
+                }
+
+                return value;
+
+            } catch (NumberFormatException e) {
+                System.out.println("Ошибка: введите корректное целое число!");
+            }
         }
     }
 }

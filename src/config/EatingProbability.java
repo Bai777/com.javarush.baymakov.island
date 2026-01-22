@@ -2,6 +2,7 @@ package config;
 
 import entity.Animal;
 import entity.Herbivore;
+import entity.Omnivore;
 import entity.animals.herbivores.*;
 import entity.animals.predators.*;
 
@@ -84,14 +85,6 @@ public class EatingProbability {
             return preyMap.getOrDefault(prey, 0);
         }
         return 0;
-    }
-
-    public static boolean eatsPlants(Class<? extends Animal> animalClass) {
-        if (Herbivore.class.isAssignableFrom(animalClass)) {
-            return true;
-        }
-
-        return false;
     }
 
     public static boolean hasAnimalPrey(Class<? extends Animal> animalClass) {

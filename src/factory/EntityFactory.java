@@ -1,6 +1,7 @@
 package factory;
 
 import config.Config;
+import config.Constants;
 import entity.Animal;
 import entity.animals.herbivores.*;
 import entity.animals.predators.*;
@@ -60,7 +61,7 @@ public class EntityFactory {
         if (supplier != null) {
             return supplier.get();
         }
-        throw new IllegalArgumentException("Unknown animal type: " + animalType);
+        throw new IllegalArgumentException(Constants.ForEntityFactory.messageFromException + animalType);
     }
 
 
@@ -69,7 +70,7 @@ public class EntityFactory {
         if (supplier != null) {
             return supplier.get();
         }
-        throw new IllegalArgumentException("Unknown animal type: " + animalType);
+        throw new IllegalArgumentException(Constants.ForEntityFactory.messageFromException + animalType);
     }
 
     private Animal createEagle() {

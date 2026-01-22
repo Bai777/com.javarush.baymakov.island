@@ -1,5 +1,6 @@
 package simulation;
 
+import config.Constants;
 import entity.Animal;
 import logic.Island;
 import logic.Location;
@@ -24,7 +25,7 @@ public class AnimalLifecycleTask implements Callable<Void> {
     }
 
     @Override
-    public Void call() throws Exception {
+    public Void call() {
         try {
             for (int x = startX; x < startX + width && x < island.getWidth(); x++) {
                 for (int y = startY; y < startY + height && y < island.getHeight(); y++) {
@@ -34,8 +35,8 @@ public class AnimalLifecycleTask implements Callable<Void> {
                     }
                 }
             }
-        }catch (Exception e){
-            System.err.println("Error in AnimalLifecycleTask: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println(Constants.ForAnimalLifecycleTask.error + e.getMessage());
         }
         return null;
     }
@@ -50,7 +51,7 @@ public class AnimalLifecycleTask implements Callable<Void> {
                 animal.eat(location);
 
                 if (animal.isAlive() && animal.getCurrentSatiety() < animal.getFoodNeededForSaturation() * 0.2) {
-                    animal.decreaseSatiety(0.3);
+                    animal.decreaseSatiety(Constants.ForAnimalLifecycleTask.decreaseSatiety);
                 }
 
                 if (animal.isAlive()) {
@@ -62,8 +63,8 @@ public class AnimalLifecycleTask implements Callable<Void> {
                     animal.move(location, adjacentLocations);
                 }
             }
-        }catch (Exception e) {
-            System.err.println("Error processing location [" + x + "," + y + "]: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println(Constants.ForAnimalLifecycleTask.errorLocation + "[" + x + "," + y + "]: " + e.getMessage());
         }
     }
 

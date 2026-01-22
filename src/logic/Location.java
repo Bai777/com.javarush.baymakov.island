@@ -1,6 +1,7 @@
 package logic;
 
 import config.Config;
+import config.Constants;
 import entity.Animal;
 import entity.plants.Plant;
 import factory.EntityFactory;
@@ -22,18 +23,18 @@ public class Location {
         this.animals = new HashMap<>();
         this.plants = new ArrayList<>();
         this.animalObjects = new ArrayList<>();
-        this.factory = EntityFactory.getInstance();;
+        this.factory = EntityFactory.getInstance();
     }
 
     public boolean addAnimal(Animal animal) {
         lock.lock();
         try {
             String animalType = animal.getAnimalType();
-            int currentCount = animals.getOrDefault(animalType, 0);
-            int maxCount = animal.getMaxCountInCell();
+            Integer currentCount = animals.getOrDefault(animalType, Constants.ForLocation.defaultValue);
+            Integer maxCount = animal.getMaxCountInCell();
 
             if (currentCount < maxCount && !animalObjects.contains(animal)) {
-                animals.put(animalType, currentCount + 1);
+                animals.put(animalType, currentCount + Constants.ForLocation.increventValue);
                 animalObjects.add(animal);
                 return true;
             }
@@ -58,10 +59,9 @@ public class Location {
             if (animal == null) {
                 return false;
             }
-
             String animalType = animal.getAnimalType();
             if (animalObjects.remove(animal)) {
-                int count = animals.getOrDefault(animalType, 0);
+                Integer count = animals.getOrDefault(animalType, 0);
                 if (count > 0) {
                     animals.put(animalType, count - 1);
                 }
@@ -85,7 +85,7 @@ public class Location {
         try {
             List<Animal> animalsToRemove = new ArrayList<>();
 
-            int deadCount = 0;
+            Integer deadCount = 0;
             Map<String, Integer> deadByType = new HashMap<>();
 
             for (Animal animal : animalObjects) {
@@ -106,7 +106,7 @@ public class Location {
                     String animalType = deadAnimal.getAnimalType();
                     animalObjects.remove(deadAnimal);
 
-                    int currentCount = this.animals.getOrDefault(animalType, 0);
+                    Integer currentCount = this.animals.getOrDefault(animalType, 0);
                     if (currentCount > 0) {
                         this.animals.put(animalType, currentCount - 1);
                     }

@@ -6,7 +6,9 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class Config {
     private static Config instance;
@@ -15,7 +17,6 @@ public class Config {
     private Config() {
         try {
             ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-
             File configFile = new File("src/simulation-config.yaml");
 
             if (!configFile.exists()) {
@@ -26,9 +27,7 @@ public class Config {
                 throw new RuntimeException("Конфигурационный файл не найден: " +
                         configFile.getAbsolutePath());
             }
-
             config = mapper.readValue(configFile, SimulationConfig.class);
-
         } catch (IOException e) {
             System.err.println("Ошибка загрузки конфигурации: " + e.getMessage());
             e.printStackTrace();
@@ -87,10 +86,8 @@ public class Config {
         @JsonProperty("max_plants_in_cell")
         private int maxPlantsInCell;
 
-
         @JsonProperty("plant_growth_interval_ms")
         private long plantGrowthIntervalMs;
-
 
         @JsonProperty("statistics_interval_ms")
         private long statisticsIntervalMs;
@@ -149,17 +146,9 @@ public class Config {
             }
             return predators.get(type.toLowerCase());
         }
-
-        public Set<String> getAllAnimalTypes() {
-            Set<String> allTypes = new HashSet<>();
-            allTypes.addAll(herbivores.keySet());
-            allTypes.addAll(predators.keySet());
-            return allTypes;
-        }
     }
 
     public static class AnimalConfig {
-
         @JsonProperty("max_count_in_cell")
         private int maxCountInCell;
 
@@ -194,14 +183,6 @@ public class Config {
 
         public String getIcon() {
             return icon;
-        }
-
-        public double getHuntProbability() {
-            return huntProbability;
-        }
-
-        public List<String> getPreyTypes() {
-            return preyTypes != null ? preyTypes : new ArrayList<>();
         }
     }
 

@@ -1,6 +1,7 @@
 package simulation;
 
 import config.Config;
+import config.Constants;
 import logic.Island;
 
 import java.util.ArrayList;
@@ -17,7 +18,7 @@ public class Scheduler {
 
     public Scheduler(Simulation simulation) {
         this.simulation = simulation;
-        this.scheduledExecutorService = Executors.newScheduledThreadPool(3);
+        this.scheduledExecutorService = Executors.newScheduledThreadPool(Constants.ForScheduler.CORE_POOL_SIZE);
         this.threadPoolSize = Runtime.getRuntime().availableProcessors();
         this.animalLifecycleExecutor = Executors.newFixedThreadPool(threadPoolSize);
         this.config = Config.getInstance();
@@ -26,11 +27,11 @@ public class Scheduler {
     public void start() {
         Config.IslandConfig islandConfig = config.getConfig().getIsland();
 
-        System.out.println("\nСимуляция запущена...\n");
+        System.out.println(Constants.ForScheduler.title);
 
         scheduledExecutorService.scheduleAtFixedRate(() -> {
             simulation.getIsland().growPlants();
-            System.out.println("[Система] Растения выросли на всех локациях");
+            System.out.println(Constants.ForScheduler.messageFromSystem);
         }, 0, islandConfig.getPlantGrowthIntervalMs(), TimeUnit.MILLISECONDS);
 
         scheduledExecutorService.scheduleAtFixedRate(() -> {
@@ -44,16 +45,16 @@ public class Scheduler {
 
     private void executeAnimalLifecycle() {
         Island island = simulation.getIsland();
-        int width = island.getWidth();
-        int height = island.getHeight();
+        Integer width = island.getWidth();
+        Integer height = island.getHeight();
 
-        int sectionSize = config.getConfig().getSimulation().getSectionSizeForThreads();
+        Integer sectionSize = config.getConfig().getSimulation().getSectionSizeForThreads();
         List<Callable<Void>> tasks = new ArrayList<>();
 
         for (int x = 0; x < width; x += sectionSize) {
             for (int y = 0; y < height; y += sectionSize) {
-                int taskWidth = Math.min(sectionSize, width - x);
-                int taskHeight = Math.min(sectionSize, height - y);
+                Integer taskWidth = Math.min(sectionSize, width - x);
+                Integer taskHeight = Math.min(sectionSize, height - y);
 
                 tasks.add(new AnimalLifecycleTask(island, x, y, taskWidth, taskHeight));
             }

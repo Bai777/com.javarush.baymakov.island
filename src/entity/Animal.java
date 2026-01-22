@@ -1,6 +1,8 @@
 package entity;
 
 import config.Config;
+import config.Constants;
+import entity.plants.Plant;
 import factory.EntityFactory;
 import logic.Location;
 
@@ -24,7 +26,7 @@ public abstract class Animal implements Eatable {
         this.maxCountInCell = maxCountInCell;
         this.speed = speed;
         this.foodNeeded = foodNeeded;
-        this.currentSatiety = foodNeeded / 2;
+        this.currentSatiety = foodNeeded / Constants.ForAnimal.currentSatietyHalf;
     }
 
     public String getAnimalType() {
@@ -70,8 +72,44 @@ public abstract class Animal implements Eatable {
 
     public void eat(Location currentLocation) {
         if (!isAlive) return;
-
         decreaseSatiety(Config.getInstance().getConfig().getSimulation().getSatietyDecreasePerTick());
+    }
+
+    protected boolean tryEatPlants(Location currentLocation) {
+        List<Plant> plants = currentLocation.getPlants();
+        if (!plants.isEmpty()) {
+            int plantIndex = getRandom().nextInt(plants.size());
+            Plant plant = plants.get(plantIndex);
+            double foodValue = plant.getFoodValue();
+
+            if (currentLocation.removePlants(Constants.ForAnimal.onePlant)) {
+                increaseSatiety(foodValue);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    protected void commonMove(Location currentLocation,
+                              List<Location> adjacentLocations,
+                              int moveProbability,
+                              double satietyDecrease) {
+        if (!isAlive() || getSpeed() == 0) return;
+
+        if (getRandom().nextInt(100) < moveProbability) {
+            if (!adjacentLocations.isEmpty()) {
+                Location targetLocation = adjacentLocations.get(getRandom().nextInt(adjacentLocations.size()));
+
+                if (currentLocation != targetLocation &&
+                        getCountInLocation(targetLocation) < getMaxCountInCell()) {
+
+                    if (currentLocation.removeAnimal(this)) {
+                        targetLocation.addAnimal(this);
+                        decreaseSatiety(satietyDecrease);
+                    }
+                }
+            }
+        }
     }
 
     public void move(Location currentLocation,
@@ -85,7 +123,37 @@ public abstract class Animal implements Eatable {
                     targetLocation.getAnimalCount(this.getAnimalType()) < maxCountInCell) {
                 if (currentLocation.removeAnimal(this)) {
                     targetLocation.addAnimal(this);
-                    decreaseSatiety(0.1);
+                    decreaseSatiety(Constants.ForAnimal.decreaseSatiety);
+                }
+            }
+        }
+    }
+
+    protected void commonMultiply(Location currentLocation,
+                                  int reproductionProbability,
+                                  double satietyDecreasePerBaby) {
+        if (!isAlive()) return;
+
+        if (currentSatiety < getFoodNeededForSaturation() * Constants.ForAnimal.foodNeededForSaturation) {
+            return;
+        }
+
+        Integer sameTypeCount = getCountInLocation(currentLocation);
+        if (sameTypeCount >= Constants.ForAnimal.sameTypeCount && getRandom().nextInt(100) < reproductionProbability) {
+            if (sameTypeCount < getMaxCountInCell()) {
+
+                List<Animal> babies = multiplyWithFactory(currentLocation, EntityFactory.getInstance());
+                Integer addedCount = Constants.ForAnimal.addedCount;
+                for (Animal baby : babies) {
+                    if (baby != null && currentLocation.addAnimal(baby)) {
+                        addedCount++;
+                    }
+                }
+
+                if (addedCount > 0) {
+                    decreaseSatiety(satietyDecreasePerBaby * addedCount);
+                    System.out.println("[Размножение] " + getAnimalType() +
+                            ": родилось " + addedCount + " детенышей");
                 }
             }
         }
@@ -100,32 +168,32 @@ public abstract class Animal implements Eatable {
         if (!isAlive) return babies;
 
         int sameTypeCount = currentLocation.getAnimalCount(this.getAnimalType());
-        Config.ReproductionConfig reprodConfig = Config.getInstance().getConfig().getReproduction();
+        Config.ReproductionConfig reproductionConfig = Config.getInstance().getConfig().getReproduction();
 
-        if (sameTypeCount >= reprodConfig.getMinAnimalsForReproduction()) {
+        if (sameTypeCount >= reproductionConfig.getMinAnimalsForReproduction()) {
 
-            if (random.nextDouble() < reprodConfig.getReproductionProbability() &&
+            if (random.nextDouble() < reproductionConfig.getReproductionProbability() &&
                     sameTypeCount < maxCountInCell) {
 
-                int maxNewborns = reprodConfig.getMaxNewbornsPerPair();
+                int maxNewborns = reproductionConfig.getMaxNewbornsPerPair();
                 int availableSpace = maxCountInCell - sameTypeCount;
                 int newborns = Math.min(maxNewborns, availableSpace);
 
-                if (newborns > 0) {
+                if (newborns > Constants.ForAnimal.newbornsZero) {
                     for (int i = 0; i < newborns; i++) {
                         try {
                             Animal baby = factory.createBabyAnimal(this.getAnimalType());
                             if (baby != null) {
-                                baby.setCurrentSatiety(baby.getFoodNeededForSaturation() / 2);
+                                baby.setCurrentSatiety(baby.getFoodNeededForSaturation() / Constants.ForAnimal.currentSatietyHalf);
                                 babies.add(baby);
                             }
                         } catch (Exception e) {
-                            System.err.println("Ошибка создания детеныша " + getAnimalType() + ": " + e.getMessage());
+                            System.err.println(Constants.ForAnimal.errorReproductionBaby + getAnimalType() + ": " + e.getMessage());
                         }
                     }
 
                     if (!babies.isEmpty()) {
-                        this.decreaseSatiety(1.0 * babies.size());
+                        this.decreaseSatiety(Constants.ForAnimal.energyForMultiply * babies.size());
                     }
                 }
             }
@@ -139,7 +207,7 @@ public abstract class Animal implements Eatable {
 
     public void decreaseSatiety(double amount) {
         currentSatiety = Math.max(0, currentSatiety - amount);
-        if (currentSatiety <= 0) {
+        if (currentSatiety <= Constants.ForAnimal.currentSatietyZero) {
             die();
         }
     }
@@ -147,5 +215,4 @@ public abstract class Animal implements Eatable {
     public void increaseSatiety(double amount) {
         currentSatiety = Math.min(currentSatiety + amount, foodNeeded);
     }
-
 }
